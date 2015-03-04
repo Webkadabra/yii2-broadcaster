@@ -1,4 +1,5 @@
 <?php
+
 namespace infinite\notification;
 
 use yii\base\BootstrapInterface;
