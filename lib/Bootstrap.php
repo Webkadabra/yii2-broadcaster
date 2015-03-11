@@ -1,11 +1,11 @@
 <?php
 
-namespace infinite\notification;
+namespace teal\notification;
 
 use yii\base\BootstrapInterface;
 
 /**
- * Bootstrap [[@doctodo class_description:infinite\notification\Bootstrap]].
+ * Bootstrap [[@doctodo class_description:teal\notification\Bootstrap]].
  *
  * @author Jacob Morrison <email@ofjacob.com>
  */

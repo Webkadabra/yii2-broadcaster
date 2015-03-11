@@ -1,5 +1,5 @@
 {
-	"name": "infiniteCascade/yii2-notification-engine",
+	"name": "teal/yii2-notification-engine",
 	"description": "Notification engine for Yii2",
 	"keywords": ["yii2", "notification"],
 	"type": "yii2-extension",
@@ -12,12 +12,12 @@
 	],
 	"require": {
 		"yiisoft/yii2": "2.0.*",
-		"infiniteCascade/yii2-infinite-core": "*"
+		"teal/yii2-teal-lib": "*"
 	},
 	"autoload": {
-		"psr-4": { "infinite\\notification\\": "lib" }
+		"psr-4": { "teal\\notification\\": "lib" }
 	},
 	"extra": {
-		"bootstrap": "infinite\\notification\\Bootstrap"
+		"bootstrap": "teal\\notification\\Bootstrap"
 	}
 }
