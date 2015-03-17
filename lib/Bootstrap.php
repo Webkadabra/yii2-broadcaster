@@ -1,11 +1,11 @@
 <?php
 
-namespace teal\notification;
+namespace canis\notification;
 
 use yii\base\BootstrapInterface;
 
 /**
- * Bootstrap [[@doctodo class_description:teal\notification\Bootstrap]].
+ * Bootstrap [[@doctodo class_description:canis\notification\Bootstrap]].
  *
  * @author Jacob Morrison <email@ofjacob.com>
  */
