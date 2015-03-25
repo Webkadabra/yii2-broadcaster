@@ -12,7 +12,8 @@
 	],
 	"require": {
 		"yiisoft/yii2": "2.0.*",
-		"canis/yii2-canis-lib": "*"
+		"canis/yii2-canis-lib": "*",
+		"yiisoft/yii2-swiftmailer": "*"
 	},
 	"autoload": {
 		"psr-4": { "canis\\notification\\": "lib" }
