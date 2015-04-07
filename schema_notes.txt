@@ -1,0 +1,20 @@
+notification
+	id 				bigint
+	hash			varchar(255)
+	notification 	bigblob
+	created 		timedate
+
+notification_endpoint
+	id 				bigint
+	notification_id	bigint
+	session_id		varchar(255) NULL
+	user_id			varchar(255) NULL 	/* allow for logged out users */
+	endpoint	 	bigblob
+	status 			enum('pending', 'handling', 'handled')
+	error_message	text				/* should this maybe go with the notification object? */
+	background 		binary
+	scheduled 		timedate
+	expires			timedate
+	attempted 		timedate
+	created 		timedate
+

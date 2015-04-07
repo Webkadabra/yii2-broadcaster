@@ -1,0 +1,63 @@
+a.notification-dismiss {
+    margin-top: -10px;
+    margin-right: -10px;
+    opacity: .2;
+}
+a.notification-dismiss span,
+.navbar-nav a.notification-dismiss span {
+    color: #000;
+}
+
+.notification-canvas .list-group-item.row.row-fluid {
+    margin: 0;
+}
+
+.navbar-nav .notification-trigger > a {
+    padding-top: 12px;
+    padding-bottom: 5px;
+}
+
+.notification-trigger .popover {
+    min-width:300px;
+    max-width:500px;
+}
+
+.notification-trigger .popover-content {
+	max-height: 300px;
+	overflow-y: auto;
+}
+
+.notification-trigger .popover .btn,
+.notification-trigger .popover .label {
+	margin-right: 3px;
+}
+
+.deferrerd-action-log .list-group-item.row {
+    margin: 0;
+}
+.deferrerd-action-log .list-group-item .detail-value {
+    font-weight: bold;
+}
+
+.deferrerd-action-log .list-group-item .detail-icon {
+    font-size: 120%;
+}
+
+.deferrerd-action-log .preformatted {
+	white-space: pre;
+}
+
+.deferrerd-action-log .log-data-output {
+  overflow: auto;
+}
+.notification-canvas .panel {
+    margin-top: 8px;
+    margin-bottom: 0;
+}
+.notification-canvas .panel h5 {
+    font-size: 90%;
+}
+.notification-canvas .panel .panel-heading {
+    height: auto;
+    padding: 5px;
+}
