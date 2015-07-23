@@ -96,7 +96,7 @@ class Module extends \yii\base\Module
         $query = [
             'and', 
             ['and', 'scheduled IS NOT NULL', 'scheduled < NOW()'], 
-            ['or', 'attempted IS NULL', 'attempted > DATE_SUB(DATE(), INTERVAL 1 HOUR)'], 
+            ['or', 'attempted IS NULL', 'attempted > DATE_SUB(NOW(), INTERVAL 1 HOUR)'], 
             ['status' => 'pending', 'background' => 1]
         ];
         return NotificationEndpoint::find()->where($query)->orderBy(['created' => SORT_ASC]);
