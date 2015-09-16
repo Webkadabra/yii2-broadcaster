@@ -26,10 +26,10 @@ class Bootstrap implements BootstrapInterface
         
         $app->setModule('notification', ['class' => Module::className()]);
         $module = $app->getModule('notification');
-        Event::on(Daemon::className(), Daemon::EVENT_TICK, [$module, 'daemonTick']);
-        Event::on(Daemon::className(), Daemon::EVENT_POST_TICK, [$module, 'daemonPostTick']);
+        // Event::on(Daemon::className(), Daemon::EVENT_TICK, [$module, 'daemonTick']);
+        // Event::on(Daemon::className(), Daemon::EVENT_POST_TICK, [$module, 'daemonPostTick']);
         
-        Event::on(Cron::className(), Cron::EVENT_WEEKLY, [$module, 'weeklyEmailDigest']);
-        Event::on(Cron::className(), Cron::EVENT_MORNING, [$module, 'dailyEmailDigest']);
+        // Event::on(Cron::className(), Cron::EVENT_WEEKLY, [$module, 'weeklyEmailDigest']);
+        // Event::on(Cron::className(), Cron::EVENT_MORNING, [$module, 'dailyEmailDigest']);
     }
 }
