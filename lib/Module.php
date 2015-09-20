@@ -1,8 +1,8 @@
 <?php
-namespace canis\notification;
+namespace canis\broadcaster;
 
-use canis\notification\models\Notification;
-use canis\notification\models\NotificationEndpoint;
+use canis\broadcaster\models\Notification;
+use canis\broadcaster\models\NotificationEndpoint;
 use Yii;
 use yii\base\Application;
 use yii\base\Event;
