@@ -1,6 +1,6 @@
 <?php
 
-namespace canis\notification;
+namespace canis\broadcaster;
 
 use yii\base\BootstrapInterface;
 
@@ -22,10 +22,10 @@ class Bootstrap implements BootstrapInterface
      */
     public function bootstrap($app)
     {
-        $app->registerMigrationAlias('@canis/notification/migrations');
+        $app->registerMigrationAlias('@canis/broadcaster/migrations');
         
-        $app->setModule('notification', ['class' => Module::className()]);
-        $module = $app->getModule('notification');
+        $app->setModule('broadcaster', ['class' => Module::className()]);
+        $module = $app->getModule('broadcaster');
         // Event::on(Daemon::className(), Daemon::EVENT_TICK, [$module, 'daemonTick']);
         // Event::on(Daemon::className(), Daemon::EVENT_POST_TICK, [$module, 'daemonPostTick']);
         
