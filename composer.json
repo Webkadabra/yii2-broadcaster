@@ -1,7 +1,7 @@
 {
-	"name": "canis/yii2-notification-engine",
-	"description": "Notification engine for Yii2",
-	"keywords": ["yii2", "notification"],
+	"name": "canis/yii2-broadcaster",
+	"description": "Broadcast events in Yii2 applications to several endpoints",
+	"keywords": ["yii2", "broadcast"],
 	"type": "yii2-extension",
 	"license": "BSD-3-Clause",
 	"authors": [
@@ -16,9 +16,9 @@
 		"yiisoft/yii2-swiftmailer": "*"
 	},
 	"autoload": {
-		"psr-4": { "canis\\notification\\": "lib" }
+		"psr-4": { "canis\\broadcaster\\": "lib" }
 	},
 	"extra": {
-		"bootstrap": "canis\\notification\\Bootstrap"
+		"bootstrap": "canis\\broadcast\\Bootstrap"
 	}
 }
