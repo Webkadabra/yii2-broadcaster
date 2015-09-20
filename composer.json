@@ -19,6 +19,6 @@
 		"psr-4": { "canis\\broadcaster\\": "lib" }
 	},
 	"extra": {
-		"bootstrap": "canis\\broadcast\\Bootstrap"
+		"bootstrap": "canis\\broadcaster\\Bootstrap"
 	}
 }
