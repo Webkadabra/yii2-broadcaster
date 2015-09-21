@@ -6,7 +6,7 @@
  * @license http://canis.io/license/
  */
 
-namespace canis\notification\components;
+namespace canis\broadcaster\components;
 
 class AssetBundle extends \canis\web\assetBundles\AssetBundle
 {

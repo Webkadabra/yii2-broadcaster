@@ -1,8 +1,8 @@
 <?php
-namespace canis\notification\components\times;
+namespace canis\broadcaster\components\times;
 
 use Yii;
-use canis\notification\components\Notification;
+use canis\broadcaster\components\Notification;
 
 class UserPreference extends Time
 {

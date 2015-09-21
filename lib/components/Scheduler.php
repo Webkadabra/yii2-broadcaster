@@ -1,5 +1,5 @@
 <?php
-namespace canis\notification\components;
+namespace canis\broadcaster\components;
 
 use Yii;
 

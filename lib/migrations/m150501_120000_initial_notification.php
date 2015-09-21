@@ -1,5 +1,5 @@
 <?php
-namespace canis\notification\migrations;
+namespace canis\broadcaster\migrations;
 
 class m150501_120000_initial_notification extends \canis\db\Migration
 {

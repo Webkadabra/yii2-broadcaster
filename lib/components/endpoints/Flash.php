@@ -1,5 +1,5 @@
 <?php
-namespace canis\notification\components\endpoints;
+namespace canis\broadcaster\components\endpoints;
 
 use Yii;
 

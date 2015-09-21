@@ -1,6 +1,6 @@
 <?php
 
-namespace canis\notification\models;
+namespace canis\broadcaster\models;
 
 use Yii;
 

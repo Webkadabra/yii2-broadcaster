@@ -5,11 +5,12 @@ namespace canis\broadcaster;
 use yii\base\BootstrapInterface;
 
 use canis\base\Cron;
-use canis\base\Daemon;
+use canis\daemon\Daemon;
 use yii\base\Event;
+use canis\broadcaster\Daemon as BroadcasterDaemon;
 
 /**
- * Bootstrap [[@doctodo class_description:canis\notification\Bootstrap]].
+ * Bootstrap [[@doctodo class_description:canis\broadcaster\Bootstrap]].
  *
  * @author Jacob Morrison <email@ofjacob.com>
  */
@@ -26,10 +27,15 @@ class Bootstrap implements BootstrapInterface
         
         $app->setModule('broadcaster', ['class' => Module::className()]);
         $module = $app->getModule('broadcaster');
-        // Event::on(Daemon::className(), Daemon::EVENT_TICK, [$module, 'daemonTick']);
-        // Event::on(Daemon::className(), Daemon::EVENT_POST_TICK, [$module, 'daemonPostTick']);
+
+        Event::on(Daemon::className(), Daemon::EVENT_REGISTER_DAEMONS, [$this, 'registerDaemon']);
         
         // Event::on(Cron::className(), Cron::EVENT_WEEKLY, [$module, 'weeklyEmailDigest']);
         // Event::on(Cron::className(), Cron::EVENT_MORNING, [$module, 'dailyEmailDigest']);
+    }
+
+    public function registerDaemon($event)
+    {
+        $event->controller->registerDaemon('broadcaster', BroadcasterDaemon::getInstance());
     }
 }

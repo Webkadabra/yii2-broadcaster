@@ -9,7 +9,7 @@ use yii\base\Event;
 use yii\helpers\Url;
 
 /**
- * Module [[@doctodo class_description:canis\notification\Module]].
+ * Module [[@doctodo class_description:canis\broadcaster\Module]].
  *
  * @author Jacob Morrison <email@ofjacob.com>
  */
