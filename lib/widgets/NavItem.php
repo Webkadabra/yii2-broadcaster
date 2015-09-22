@@ -28,7 +28,7 @@ class NavItem extends \yii\base\Widget
         $view = $widget->getView();
         \canis\broadcaster\components\AssetBundle::register($view);
 
-        $package = Yii::$app->getModule('notification')->navPackage();
+        $package = Yii::$app->getModule('broadcaster')->navPackage();
         $visible = !empty($package['items']);
         $spanHtmlOptions = ['class' => 'menu-icon fa fa-inbox', 'title' => 'Notifications'];
         $htmlOptions = [];

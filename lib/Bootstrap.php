@@ -16,6 +16,8 @@ use canis\broadcaster\Daemon as BroadcasterDaemon;
  */
 class Bootstrap implements BootstrapInterface
 {
+    public $initialHandlers = [];
+    public $initialEventTypes = [];
     /**
      * [[@doctodo method_description:bootstrap]].
      *
@@ -27,6 +29,8 @@ class Bootstrap implements BootstrapInterface
         
         $app->setModule('broadcaster', ['class' => Module::className()]);
         $module = $app->getModule('broadcaster');
+        $module->registerHandlers($this->initialHandlers);
+        $module->registerEventTypes($this->initialEventTypes);
 
         Event::on(Daemon::className(), Daemon::EVENT_REGISTER_DAEMONS, [$this, 'registerDaemon']);
         

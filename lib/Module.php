@@ -1,12 +1,11 @@
 <?php
 namespace canis\broadcaster;
 
-use canis\broadcaster\models\Notification;
-use canis\broadcaster\models\NotificationEndpoint;
 use Yii;
 use yii\base\Application;
 use yii\base\Event;
 use yii\helpers\Url;
+use canis\broadcaster\models;
 
 /**
  * Module [[@doctodo class_description:canis\broadcaster\Module]].
@@ -15,13 +14,11 @@ use yii\helpers\Url;
  */
 class Module extends \yii\base\Module
 {
-    protected $_distributor;
-    protected $_scheduler;
+    const EVENT_COLLECT_EVENT_TYPES = '_collectEventTypes';
+    const EVENT_COLLECT_EVENT_HANDLERS = '_collectEventHandlers';
 
-    /**
-     * @var [[@doctodo var_type:_active]] [[@doctodo var_description:_active]]
-     */
-    protected $_active;
+    protected $_handlers = [];
+    protected $_eventTypes = [];
 
     /**
      * @inheritdoc
@@ -35,143 +32,102 @@ class Module extends \yii\base\Module
                 $this->id . '/<action:[\w\-]+>' => $this->id . '/default/<action>',
             ], false);
         }
+        $app->on(Application::EVENT_BEFORE_REQUEST, [$this, 'beforeRequest']);
+        $app->on(Application::EVENT_BEFORE_ACTION, [$this, 'beforeAction']);
     }
 
-    public function getDistributor()
+    public function getHandlers()
     {
-        if (!isset($this->_distributor)) {
-            $distributor = ['class' => components\Distributor::className(), 'module' => $this];
-            $this->_distributor = Yii::createObject($distributor);
-        }
-        return $this->_distributor;
+        return $this->_handlers;
     }
-
-    public function getScheduler()
+    
+    public function registerHandlers($handlers)
     {
-        if (!isset($this->_scheduler)) {
-            $scheduler = ['class' => components\Scheduler::className(), 'module' => $this];
-            $this->_scheduler = Yii::createObject($scheduler);
-        }
-        return $this->_scheduler;
-    }
-
-    /**
-     * [[@doctodo method_description:daemonPostTick]].
-     */
-    public function daemonPostTick()
-    {
-        if (isset($this->_active)) {
-
+        foreach ($handlers as $id => $handler) {
+            $this->registerHandler($id, $handler);
         }
     }
-
-    /**
-     * [[@doctodo method_description:daemonTick]].
-     *
-     * @param [[@doctodo param_type:event]] $event [[@doctodo param_description:event]]
-     */
-    public function daemonTick($event)
+    public function getEventType($id)
     {
-        $this->handleAllQueued();
+        if (!isset($this->_eventTypes[$id])) {
+            return false;
+        }
+        return $this->_eventTypes[$id];
+    }
+    public function getEventTypes()
+    {
+        return $this->_eventTypes;
     }
 
-
-    /**
-     * [[@doctodo method_description:pickOneQueued]].
-     *
-     * @return [[@doctodo return_type:pickOneQueued]] [[@doctodo return_description:pickOneQueued]]
-     */
-    protected function pickOneQueued()
+    public function registerEventTypes($eventTypes, $parentClass = null)
     {
-        return $this->queuedQuery->one();
+        if (empty($eventTypes)) { return; }
+        foreach ($eventTypes as $id => $type) {
+            $this->registerEventType($id, $type, $parentClass);
+        }
     }
 
-    protected function getQueued()
+    public function collectEventTypes($eventTypeContainers)
     {
-        return $this->queuedQuery->all();
+        foreach ($eventTypeContainers as $container) {
+            $reflection = new \ReflectionClass($container);
+            if (!$reflection->implementsInterface(components\BroadcastableInterface::class)) {
+                throw new \Exception("Event type container configuration is not valid");
+            }
+            $this->registerEventTypes($container::collectEventTypes(), $container);
+        }
     }
 
-    protected function getQueuedQuery()
+    public function registerHandler($id, $handler)
     {
-        $query = [
-            'and', 
-            ['and', 'scheduled IS NOT NULL', 'scheduled < NOW()'], 
-            ['or', 'attempted IS NULL', 'attempted > DATE_SUB(NOW(), INTERVAL 1 HOUR)'], 
-            ['status' => 'pending', 'background' => 1]
-        ];
-        return NotificationEndpoint::find()->where($query)->orderBy(['created' => SORT_ASC]);
+        if (!is_object($handler)) {
+            $handler = Yii::createObject($handler);
+        }
+        if (!$handler || !($handler instanceof handlers\HandlerInterface)) {
+            throw new \Exception("Handler configuration is not valid");
+        }
+        $handler->systemId = $id;
+        $this->_handlers[$handler->systemId] = $handler;
     }
 
-    /**
-     * [[@doctodo method_description:handleOneQueued]].
-     */
-    protected function handleOneQueued()
+    static public function generateEventTypeId($id, $parentClass = null)
     {
-        $queued = $this->pickOneQueued();
-        if ($queued) {
-            try {
-                $queued->handle();
-            } catch (\Exception $e) {
-                $queued = NotificationEndpoint::find()->where(['id' => $queued->id])->one();
-                if ($queued) {
-                    $queued->status = 'pending';
-                    $message = $e->getFile() . ':' . $e->getLine() . ' ' . $e->getMessage();
-                    $queued->error_message .= ' Runner Exception: ' . $message;
-                    $queued->save();
+        if ($parentClass !== null) {
+            $id = substr(md5($parentClass), 0, 7) .':'. $id;
+        }
+        return $id;
+    }
+    
+    public function registerEventType($id, $type, $parentClass = null)
+    {
+        if (!is_object($type)) {
+            if (is_array($type)) {
+                if (!isset($type['class'])) {
+                    $type['class'] = eventTypes\DynamicEventType::className();
                 }
             }
+            $type = Yii::createObject($type);
         }
+        if (!$type || !($type instanceof eventTypes\EventTypeInterface)) {
+            throw new \Exception("Handler configuration is not valid");
+        }
+        $type->systemId = static::generateEventTypeId($id, $parentClass);
+        $this->_eventTypes[$type->systemId] = $type;
     }
 
-    protected function handleAllQueued()
+    public function beforeAction($event)
     {
-        $queuedItems = $this->getQueued();
-        if (!empty($queued)) {
-            foreach ($queuedItems as $queued) {
-                try {
-                    $queued->handle();
-                } catch (\Exception $e) {
-                    $queued = NotificationEndpoint::find()->where(['id' => $queued->id])->one();
-                    if ($queued) {
-                        $queued->status = 'pending';
-                        $message = $e->getFile() . ':' . $e->getLine() . ' ' . $e->getMessage();
-                        $queued->error_message .= ' Runner Exception: ' . $message;
-                        $queued->save();
-                    }
-                }
-            }
-        }
+        return true;
     }
 
-    /**
-     * [[@doctodo method_description:cleanActions]].
-     *
-     * @param [[@doctodo param_type:event]] $event [[@doctodo param_description:event]]
-     */
-    public function cleanActions($event)
+    public function beforeRequest($event)
     {
-        $items = NotificationEndpoint::find()->where(['and', '`expires` < NOW()', '`status`=\'handled\''])->all();
-        foreach ($items as $item) {
-            $item->dismiss(false);
-        }
+        $collectEvent = new components\CollectEvent;
+        $collectEvent->module = $this;
+        Event::trigger(Application::className(), static::EVENT_COLLECT_EVENT_HANDLERS, $collectEvent);
+        Event::trigger(Application::className(), static::EVENT_COLLECT_EVENT_TYPES, $collectEvent);
+        return true;
     }
 
-    /**
-     * [[@doctodo method_description:navPackage]].
-     *
-     * @return [[@doctodo return_type:navPackage]] [[@doctodo return_description:navPackage]]
-     */
-    public function navPackage()
-    {
-        $package = ['_' => [], 'items' => []];
-        $package['_']['refreshUrl'] = Url::to('/' . $this->id . '/nav-package');
-        $package['_']['handleUrl'] = Url::to('/' . $this->id . '/handle');
-        $items = NotificationEndpoint::findMine()->andWhere(['and', '`status` != "handled"', '`background` = 0', ['or', '`expires` IS NULL', '`expires` > NOW()']])->all();
-        $package['items'] = [];
-        foreach ($items as $item) {
-            $package['items'][$item->primaryKey] = $item->package();
-        }
 
-        return $package;
-    }
 }
