@@ -4,6 +4,11 @@ class WebhookConfiguration extends Configuration
 {
 	public $url;
 
+	public function getDescriptor()
+	{
+		return $this->url;
+	}
+	
 	public function rules()
 	{
 		return [

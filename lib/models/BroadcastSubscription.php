@@ -3,6 +3,7 @@
 namespace canis\broadcaster\models;
 
 use Yii;
+use canis\db\behaviors\TagBehavior;
 
 /**
  * This is the model class for table "broadcast_subscription".
@@ -11,10 +12,12 @@ use Yii;
  * @property string $user_id
  * @property string $object_id
  * @property string $broadcast_handler_id
+ * @property bool $all_events
  * @property string $name
  * @property string $batch_type
  * @property resource $config
  * @property string $created
+ * @property string $last_triggered
  *
  * @property BroadcastEventDeferred[] $broadcastEventDeferreds
  * @property BroadcastHandler $broadcastHandler
@@ -41,6 +44,17 @@ class BroadcastSubscription extends \canis\db\ActiveRecordRegistry
         $this->on(self::EVENT_BEFORE_VALIDATE, [$this, 'prepareConfig']);
     }
 
+    public function getDescriptor()
+    {
+        if (!empty($this->name)) {
+            return $this->name;
+        }
+        if (!empty($this->configObject->descriptor)) {
+            return $this->configObject->descriptor;
+        }
+        return 'Unknown';
+    }
+
     /**
      * [[@doctodo method_description:serializeAction]].
      */
@@ -53,7 +67,9 @@ class BroadcastSubscription extends \canis\db\ActiveRecordRegistry
                 return false;
             }
             try {
-                $this->config = serialize($this->_configObject);
+                $attributes = $this->configObject->attributes;
+                unset($attributes['model']);
+                $this->config = json_encode(['class' => get_class($this->configObject), 'attributes' => $attributes]);
             } catch (\Exception $e) {
                 \d($this->_configObject);
                 exit;
@@ -64,6 +80,19 @@ class BroadcastSubscription extends \canis\db\ActiveRecordRegistry
             return false;
         }
     }
+    public function behaviors()
+    {
+        return array_merge(parent::behaviors(), [
+            'SubscriptionEventTypes' => [
+                'class' => TagBehavior::className(),
+                'tagField' => 'eventTypes',
+                'tagClass' => BroadcastEventType::className(),
+                'viaClass' => BroadcastSubscriptionEventType::className(),
+                'viaLocalField' => 'broadcast_subscription_id',
+                'viaForeignField' => 'broadcast_event_type_id'
+            ]
+        ]);
+    }
 
     /**
      * Get action object.
@@ -73,8 +102,11 @@ class BroadcastSubscription extends \canis\db\ActiveRecordRegistry
     public function getConfigObject()
     {
         if (!isset($this->_configObject) && !empty($this->config)) {
-            $this->_configObject = unserialize($this->config);
-            $this->_configObject->model = $this;
+            $configSettings = json_decode($this->config, true);
+            if (isset($configSettings['class'])) {
+                $this->_configObject = Yii::createObject($configSettings);
+                $this->_configObject->model = $this;
+            }
         }
 
         return $this->_configObject;
@@ -101,8 +133,10 @@ class BroadcastSubscription extends \canis\db\ActiveRecordRegistry
     {
         return [
             [['user_id', 'broadcast_handler_id'], 'required'],
+            [['all_events'], 'integer'],
+            [['all_events'], 'checkEvents'],
             [['batch_type', 'config'], 'string'],
-            [['created'], 'safe'],
+            [['created', 'last_triggered'], 'safe'],
             [['id', 'user_id', 'object_id', 'broadcast_handler_id'], 'string', 'max' => 36],
             [['name'], 'string', 'max' => 255],
             [['broadcast_handler_id'], 'exist', 'skipOnError' => true, 'targetClass' => BroadcastHandler::className(), 'targetAttribute' => ['broadcast_handler_id' => 'id']],
@@ -112,6 +146,14 @@ class BroadcastSubscription extends \canis\db\ActiveRecordRegistry
         ];
     }
 
+    public function checkEvents($attribute, $params)
+    {
+        if (empty($this->{$attribute}) && empty($this->eventTypes)) {
+            $this->addError($attribute, 'You must select at least one event');
+        } elseif (!empty($this->{$attribute})) {
+            $this->eventTypes = [];
+        }
+    }
     /**
      * @inheritdoc
      */

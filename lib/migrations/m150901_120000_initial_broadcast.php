@@ -80,9 +80,11 @@ class m150901_120000_initial_broadcast extends \canis\db\Migration
             'user_id' => 'char(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL',
             'object_id' => 'char(36) CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL',
             'broadcast_handler_id' => 'char(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL',
+            'all_events' => 'bool NOT NULL DEFAULT 0',
             'name' => 'string(255) DEFAULT NULL',
             'batch_type' => 'ENUM(\'hourly\', \'daily\', \'weekly\', \'monthly\') DEFAULT NULL',
             'config' => 'longblob DEFAULT NULL',
+            'last_triggered' => 'datetime DEFAULT NULL',
             'created' => 'datetime DEFAULT NULL'
         ]);
 
@@ -124,6 +126,7 @@ class m150901_120000_initial_broadcast extends \canis\db\Migration
         $this->dropExistingTable('broadcast_event_deferred');
         $this->dropExistingTable('broadcast_event_batch');
         $this->dropExistingTable('broadcast_subscription');
+        $this->dropExistingTable('broadcast_subscription_event_type');
 
         $this->db->createCommand()->checkIntegrity(true)->execute();
 

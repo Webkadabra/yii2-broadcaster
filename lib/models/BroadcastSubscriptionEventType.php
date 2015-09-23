@@ -14,7 +14,7 @@ use Yii;
  * @property BroadcastSubscription $broadcastSubscription
  * @property BroadcastEventType $broadcastEventType
  */
-class BroadcastSubscriptionEventType extends \canis\db\ActiveRecordRegistry
+class BroadcastSubscriptionEventType extends \canis\db\ActiveRecord
 {
     /**
      * @inheritdoc

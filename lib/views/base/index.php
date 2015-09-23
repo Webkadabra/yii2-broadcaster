@@ -1,5 +1,7 @@
 <?php
 use yii\helpers\Html;
+
+canis\web\assetBundles\BootstrapSelectAsset::register($this);
 $this->title = $title;
 echo Html::beginTag('div', ['class' => 'panel panel-default']);
 echo Html::beginTag('div', ['class' => 'panel-heading']);
@@ -16,6 +18,10 @@ echo Html::beginTag('div', ['class' => 'table-responsive']);
 echo \yii\grid\GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => $columns,
+    'formatter' => [
+    	'class' => 'yii\i18n\Formatter',
+    	'nullDisplay' => '<span class="not-set">(none)</span>'
+    ],
     'tableOptions' => ['class' => 'table table-striped table-hover']
 ]);
 echo Html::endTag('div');

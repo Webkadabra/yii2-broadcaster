@@ -8,14 +8,21 @@
 
 namespace canis\broadcaster\controllers;
 
+use yii\helpers\Html;
+
 class WebhookController extends BaseSubscription
 {
     public function getGridViewColumns()
     {
         $c = [];
-        $c[] = 'id';
-        $c[] = 'name';
-        $c[] = 'created:date';
+        $c[] = [
+            'attribute' => 'url',
+            'label' => 'URL',
+            'format' => 'html',
+            'value' => function ($model, $key, $index, $column) {
+                return $model->configObject->url;
+            }
+        ];
         return $c;
     }
 

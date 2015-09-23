@@ -18,4 +18,9 @@ abstract class Configuration extends \yii\base\Model
     }
 
     abstract public function getAttributeConfig();
+
+    public function getDescriptor()
+    {
+        return null;
+    }
 }
