@@ -71,4 +71,8 @@ class BroadcastEventType extends \canis\db\ActiveRecordRegistry
    { 
        return $this->hasMany(BroadcastSubscription::className(), ['broadcast_event_type_id' => 'id']); 
    } 
+   public function getBroadcastSubscriptionEventTypes()
+   {
+       return $this->hasMany(BroadcastSubscriptionEventType::className(), ['broadcast_event_type_id' => 'id']);
+   }
 }

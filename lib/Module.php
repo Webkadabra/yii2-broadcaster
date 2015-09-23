@@ -29,11 +29,19 @@ class Module extends \yii\base\Module
         $app = Yii::$app;
         if ($app instanceof \yii\web\Application) {
             $app->getUrlManager()->addRules([
-                $this->id . '/<action:[\w\-]+>' => $this->id . '/default/<action>',
+                $this->id . '/<controller:[\w\-]+>/<action:[\w\-]+>' => $this->id . '/<controller>/<action>',
             ], false);
         }
         $app->on(Application::EVENT_BEFORE_REQUEST, [$this, 'beforeRequest']);
         $app->on(Application::EVENT_BEFORE_ACTION, [$this, 'beforeAction']);
+    }
+
+    public function getHandler($id)
+    {
+        if (!isset($this->_handlers[$id])) {
+            return false;
+        }
+        return $this->_handlers[$id];
     }
 
     public function getHandlers()

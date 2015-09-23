@@ -13,7 +13,8 @@
 	"require": {
 		"yiisoft/yii2": "2.0.*",
 		"canis/yii2-canis-lib": "*",
-		"yiisoft/yii2-swiftmailer": "*"
+		"yiisoft/yii2-swiftmailer": "*",
+		"bower-asset/bootstrap-select": "1.7.*"
 	},
 	"autoload": {
 		"psr-4": { "canis\\broadcaster\\": "lib" }

@@ -78,9 +78,9 @@ class m150901_120000_initial_broadcast extends \canis\db\Migration
         $this->createTable('broadcast_subscription', [
             'id' => 'char(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY',
             'user_id' => 'char(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL',
-            'broadcast_handler_id' => 'char(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL',
-            'broadcast_event_type_id' => 'char(36) CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL',
             'object_id' => 'char(36) CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL',
+            'broadcast_handler_id' => 'char(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL',
+            'name' => 'string(255) DEFAULT NULL',
             'batch_type' => 'ENUM(\'hourly\', \'daily\', \'weekly\', \'monthly\') DEFAULT NULL',
             'config' => 'longblob DEFAULT NULL',
             'created' => 'datetime DEFAULT NULL'
@@ -90,9 +90,18 @@ class m150901_120000_initial_broadcast extends \canis\db\Migration
         $this->addForeignKey('broadcastEventSubscriptionObject', 'broadcast_subscription', 'object_id', 'registry', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey('broadcastEventSubscriptionUser', 'broadcast_subscription', 'user_id', 'user', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey('broadcastEventSubscriptionHandler', 'broadcast_subscription', 'broadcast_handler_id', 'broadcast_handler', 'id', 'CASCADE', 'CASCADE');
-        $this->addForeignKey('broadcastEventSubscriptionType', 'broadcast_subscription', 'broadcast_event_type_id', 'broadcast_event_type', 'id', 'CASCADE', 'CASCADE');
-        
 
+
+        $this->dropExistingTable('broadcast_subscription_event_type');
+        $this->createTable('broadcast_subscription_event_type', [
+            'id' => 'bigint unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY',
+            'broadcast_subscription_id' => 'char(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL',
+            'broadcast_event_type_id' => 'char(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL',
+        ]);
+
+        $this->addForeignKey('broadcastEventSubscriptionType', 'broadcast_subscription_event_type', 'broadcast_event_type_id', 'broadcast_event_type', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey('broadcastEventSubscriptionSubscription', 'broadcast_subscription_event_type', 'broadcast_subscription_id', 'broadcast_subscription', 'id', 'CASCADE', 'CASCADE');
+        
         $this->db->createCommand()->checkIntegrity(true)->execute();
 
         return true;

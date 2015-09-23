@@ -1,0 +1,41 @@
+==broadcast_event_type==
+id
+system_id					string
+name						string
+
+==broadcast_handler==
+id
+system_id					string
+name						string
+
+==broadcast_event==
+id
+broadcast_event_type_id
+payload						blob
+broadcasted					bool
+created						datetime 
+
+==broadcast_event_deferred==
+id
+broadcast_subscription_id	
+broadcast_event_id 			
+broadcast_event_batch_id	 		
+result	 					blob	
+handled 					bool
+scheduled 					datetime
+created						datetime
+
+==broadcast_event_batch==
+id
+user_id						
+broadcast_handler_id			
+result	 					blob
+handled 					bool
+scheduled 					datetime
+created						datetime
+
+==broadcast_subscription==
+id 							string
+broadcast_handler_id		
+user_id						
+
