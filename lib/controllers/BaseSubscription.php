@@ -13,7 +13,7 @@ use yii\helpers\Html;
 use canis\broadcaster\models\BroadcastEventType;
 use canis\broadcaster\models\BroadcastSubscription;
 
-abstract class BaseSubscription extends \canis\web\Controller
+abstract class BaseSubscription extends BaseController
 {
 	public $indexView = '@canis/broadcaster/views/base/index';
 	public $createView = '@canis/broadcaster/views/base/create';
