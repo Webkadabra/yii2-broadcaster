@@ -37,9 +37,9 @@ class BroadcastEventDeferred extends \canis\db\ActiveRecord
     {
         return [
             [['broadcast_subscription_id', 'broadcast_event_id'], 'required'],
-            [['broadcast_event_id', 'broadcast_event_batch_id', 'handled'], 'integer'],
+            [['broadcast_event_id', 'broadcast_event_batch_id'], 'integer'],
             [['result'], 'string'],
-            [['scheduled', 'created'], 'safe'],
+            [['scheduled', 'created', 'started', 'completed'], 'safe'],
             [['broadcast_subscription_id'], 'string', 'max' => 36],
             [['broadcast_event_batch_id'], 'exist', 'skipOnError' => true, 'targetClass' => BroadcastEventBatch::className(), 'targetAttribute' => ['broadcast_event_batch_id' => 'id']],
             [['broadcast_event_id'], 'exist', 'skipOnError' => true, 'targetClass' => BroadcastEvent::className(), 'targetAttribute' => ['broadcast_event_id' => 'id']],
@@ -58,7 +58,8 @@ class BroadcastEventDeferred extends \canis\db\ActiveRecord
             'broadcast_event_id' => 'Broadcast Event ID',
             'broadcast_event_batch_id' => 'Broadcast Event Batch ID',
             'result' => 'Result',
-            'handled' => 'Handled',
+            'started' => 'Started',
+            'completed' => 'Completed',
             'scheduled' => 'Scheduled',
             'created' => 'Created',
         ];

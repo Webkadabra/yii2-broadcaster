@@ -37,8 +37,7 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
         return [
             [['user_id', 'broadcast_handler_id'], 'required'],
             [['result'], 'string'],
-            [['handled'], 'integer'],
-            [['scheduled', 'created'], 'safe'],
+            [['scheduled', 'created', 'started', 'completed'], 'safe'],
             [['user_id', 'broadcast_handler_id'], 'string', 'max' => 36],
             [['broadcast_handler_id'], 'exist', 'skipOnError' => true, 'targetClass' => BroadcastHandler::className(), 'targetAttribute' => ['broadcast_handler_id' => 'id']],
             // [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
@@ -55,7 +54,8 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
             'user_id' => 'User ID',
             'broadcast_handler_id' => 'Broadcast Handler ID',
             'result' => 'Result',
-            'handled' => 'Handled',
+            'started' => 'Started',
+            'completed' => 'Completed',
             'scheduled' => 'Scheduled',
             'created' => 'Created',
         ];

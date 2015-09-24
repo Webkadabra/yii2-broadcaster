@@ -52,7 +52,8 @@ class m150901_120000_initial_broadcast extends \canis\db\Migration
             'broadcast_event_batch_id' => 'bigint unsigned DEFAULT NULL',
 
             'result' => 'longblob',
-            'handled' => 'bool NOT NULL DEFAULT 0',
+            'started' => 'datetime DEFAULT NULL',
+            'completed' => 'datetime DEFAULT NULL',
             'scheduled' => 'datetime DEFAULT NULL',
             'created' => 'datetime DEFAULT NULL'
         ]);
@@ -67,7 +68,8 @@ class m150901_120000_initial_broadcast extends \canis\db\Migration
             'user_id' => 'char(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL',
             'broadcast_handler_id' => 'char(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL',
             'result' => 'longblob',
-            'handled' => 'bool NOT NULL DEFAULT 0',
+            'started' => 'datetime DEFAULT NULL',
+            'completed' => 'datetime DEFAULT NULL',
             'scheduled' => 'datetime DEFAULT NULL',
             'created' => 'datetime DEFAULT NULL'
         ]);
