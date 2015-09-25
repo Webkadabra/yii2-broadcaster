@@ -1,6 +1,7 @@
 <?php
 namespace canis\broadcaster\handlers;
 
+use Yii;
 use canis\broadcaster\models\BroadcastEventDeferred;
 use canis\broadcaster\models\BroadcastEvent;
 use canis\broadcaster\models\BroadcastEventType;

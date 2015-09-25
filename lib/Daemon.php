@@ -33,6 +33,11 @@ class Daemon extends DaemonBase
         return 'Broadcaster Daemon';
     }
 
+    public function getSpeedLimit()
+    {
+        return 1;
+    }
+    
     public function run($controller, $args = [])
     {
         $_this = $this;

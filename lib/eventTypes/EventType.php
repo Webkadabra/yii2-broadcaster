@@ -1,6 +1,7 @@
 <?php
 namespace canis\broadcaster\eventTypes;
 use Yii;
+use canis\helpers\StringHelper;
 use canis\broadcaster\models\BroadcastEvent;
 use canis\broadcaster\models\BroadcastEventType;
 
@@ -26,11 +27,10 @@ abstract class EventType extends \yii\base\Component implements EventTypeInterfa
 
 	public function getDescriptor(BroadcastEvent $event)
 	{
-		if (!($this->getDescriptorString())) {
+		if (!($descriptor = $this->getDescriptorString())) {
 			return false;
 		}
-		
-		return null;
+		return StringHelper::simpleTwig($descriptor, $event->payloadObject->data);
 	}
 
 	public function getDescriptorString()
