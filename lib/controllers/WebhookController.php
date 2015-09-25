@@ -10,8 +10,14 @@ namespace canis\broadcaster\controllers;
 
 use yii\helpers\Html;
 
-class WebhookController extends BaseSubscription
+class WebhookController 
+    extends BaseSubscription
 {
+    public static function getLabel()
+    {
+        return 'Webhooks';
+    }
+    
     public function getGridViewColumns()
     {
         $c = [];
@@ -30,7 +36,6 @@ class WebhookController extends BaseSubscription
     {
         return 'Webhook' . (!$singular ? 's' : '');
     }
-
 
     protected function getHandlers()
     {

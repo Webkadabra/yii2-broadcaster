@@ -10,6 +10,11 @@ namespace canis\broadcaster\controllers;
 
 class EmailController extends BaseSubscription
 {
+    public static function getLabel()
+    {
+        return 'Email Notifications';
+    }
+
 	public function getGridViewColumns()
     {
         $c = [];
@@ -26,15 +31,21 @@ class EmailController extends BaseSubscription
 
     public function getDescriptor($singular = false)
     {
-        return 'Webhook' . (!$singular ? 's' : '');
+        return 'Email Notification' . (!$singular ? 's' : '');
     }
 
 
-    protected function getHandler()
+    protected function getHandlers()
     {
-        if (!($handler = $this->module->getHandler('email'))){
-        	throw new \Exception("Unable to find email handler");
+        if (!($handlers = $this->module->getHandlers())){
+            throw new \Exception("Unable to find any handlers");
         }
-        return $handler;
+        $myHandlers = [];
+        foreach ($handlers as $id => $handler) {
+            if ($handler instanceof \canis\broadcaster\handlers\Email) {
+                $myHandlers[$id] = $handler;
+            }
+        }
+        return $myHandlers;
     }
 }

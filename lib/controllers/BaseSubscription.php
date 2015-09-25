@@ -13,7 +13,9 @@ use yii\helpers\Html;
 use canis\broadcaster\models\BroadcastEventType;
 use canis\broadcaster\models\BroadcastSubscription;
 
-abstract class BaseSubscription extends BaseController
+abstract class BaseSubscription 
+    extends BaseController
+    implements SubscriptionManagerInterface
 {
 	public $indexView = '@canis/broadcaster/views/base/index';
 	public $createView = '@canis/broadcaster/views/base/create';
@@ -80,18 +82,24 @@ abstract class BaseSubscription extends BaseController
     		if (empty($model) || $model->broadcast_handler_id !== $handler->model->id || $model->user_id !== $userId) {
     			throw \yii\web\NotFoundHttpException("Subscription not found!");
     		}
+            $setDefaults = false;
     	} else {
     		$action = 'create';
     		$params['model'] = $model = new BroadcastSubscription;
-    		$model->broadcast_handler_id = $handler->model->id;
+            $model->broadcast_handler_id = $handler->model->id;
     		$model->user_id = $userId;
     		$model->all_events = 1;
+            $setDefaults = true;
     	}
 
     	$configClass = $handler->getConfigurationClass();
     	if (!$model->configObject) {
     		$model->configObject = new $configClass;
     	}
+
+        if ($setDefaults) {
+            $model->configObject->attributes = $model->configObject->defaultValues();
+        }
 
         if (!empty($_POST)) {
         	$configFormName = $model->configObject->formName();

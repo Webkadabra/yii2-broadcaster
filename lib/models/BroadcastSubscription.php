@@ -61,6 +61,9 @@ class BroadcastSubscription extends \canis\db\ActiveRecordRegistry
      */
     public function prepareConfig($event)
     {
+        if (empty($this->batch_type)) {
+            $this->batch_type = null;
+        }
         if (isset($this->_configObject)) {
             if (!$this->configObject->validate()) {
                 $this->addError('config', 'Invalid configuration');
@@ -166,7 +169,7 @@ class BroadcastSubscription extends \canis\db\ActiveRecordRegistry
             'object_id' => 'Object ID',
             'broadcast_handler_id' => 'Broadcast Handler ID',
             'name' => 'Name',
-            'batch_type' => 'Batch Type',
+            'batch_type' => 'Regularity',
             'config' => 'Config',
             'created' => 'Created',
         ];

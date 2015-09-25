@@ -20,6 +20,13 @@ class BaseController extends \canis\web\Controller
         if (!parent::beforeAction($action)) {
             return false;
         }
+        $layout = $this->layout;
+        if ($layout === null) {
+            $layout = Yii::$app->layout;
+        }
+        $layout = Yii::$app->layoutPath . DIRECTORY_SEPARATOR . $layout .'.php';
+        $this->view->params['originalLayout'] = $layout;
+        $this->layout = 'main';
         return true;
     }
     

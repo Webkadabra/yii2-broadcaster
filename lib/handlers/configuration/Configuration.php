@@ -23,4 +23,9 @@ abstract class Configuration extends \yii\base\Model
     {
         return null;
     }
+
+    public function defaultValues()
+    {
+        return [];
+    }
 }

@@ -25,6 +25,8 @@ class Module
     protected $_handlers = [];
     protected $_eventTypes = [];
 
+    public $friendlyUrl = 'notification';
+
     /**
      * @inheritdoc
      */
@@ -34,11 +36,37 @@ class Module
         $app = Yii::$app;
         if ($app instanceof \yii\web\Application) {
             $app->getUrlManager()->addRules([
-                $this->id . '/<controller:[\w\-]+>/<action:[\w\-]+>' => $this->id . '/<controller>/<action>',
+                $this->friendlyUrl . '' => $this->id . '/default/index',
+                $this->friendlyUrl . '/<controller:[\w\-]+>' => $this->id . '/<controller>/index',
+                $this->friendlyUrl . '/<controller:[\w\-]+>/<action:[\w\-]+>' => $this->id . '/<controller>/<action>',
             ], false);
+        }
+        $controllers = [
+            'email' => controllers\EmailController::className(),
+            'webhook' => controllers\WebhookController::className()
+        ];
+        if (isset(Yii::$app->params['broadcastControllers'])) {
+            $controllers = array_merge($controllers, Yii::$app->params['broadcastControllers']);
+        }
+        foreach ($controllers as $id => $controller) {
+            if (!$controller) { continue; }
+            $this->controllerMap[$id] = $controller;
         }
         $app->on(Application::EVENT_BEFORE_REQUEST, [$this, 'beforeRequest']);
         $app->on(Application::EVENT_BEFORE_ACTION, [$this, 'beforeAction']);
+    }
+
+
+    public function getControllerItems()
+    {
+        $items = [];
+        foreach ($this->controllerMap as $id => $controller) {
+            $reflection = new \ReflectionClass($controller);
+            if ($reflection->implementsInterface(controllers\SubscriptionManagerInterface::class)) {
+                $items[$id] = $controller::getLabel();
+            }
+        }
+        return $items;
     }
 
     public function getHandler($id)
