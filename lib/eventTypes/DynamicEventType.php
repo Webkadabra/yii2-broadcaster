@@ -5,6 +5,7 @@ use canis\broadcaster\models;
 class DynamicEventType extends EventType
 {
 	protected $_name;
+	protected $_batchable = true;
 	
 	public function getName()
 	{
@@ -16,4 +17,13 @@ class DynamicEventType extends EventType
 		$this->_name = $name;
 	}
 
+	public function getBatchable()
+	{
+		return $this->_batchable;
+	}
+
+	public function setBatchable($batchable)
+	{
+		$this->_batchable = $batchable;
+	}
 }

@@ -15,7 +15,14 @@ abstract class EventType extends \yii\base\Component implements EventTypeInterfa
 	protected $_priority;
 
 	abstract public function getName();
+
+	abstract public function getBatchable();
 	
+	public function getSchedule(BroadcastEvent $event)
+	{
+		return null;
+	}
+
 	public function getPriority()
 	{
 		if ($this->_priority === null) {

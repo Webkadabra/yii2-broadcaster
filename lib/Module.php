@@ -5,14 +5,19 @@ use Yii;
 use yii\base\Application;
 use yii\base\Event;
 use yii\helpers\Url;
-use canis\broadcaster\models;
+use canis\broadcaster\models\BroadcastEvent;
+use canis\broadcaster\models\BroadcastEventBatch;
+use canis\broadcaster\models\BroadcastEventDeferred;
+use canis\caching\Cacher;
 
 /**
  * Module [[@doctodo class_description:canis\broadcaster\Module]].
  *
  * @author Jacob Morrison <email@ofjacob.com>
  */
-class Module extends \yii\base\Module
+class Module 
+    extends \yii\base\Module
+    implements \canis\base\AskInterface
 {
     const EVENT_COLLECT_EVENT_TYPES = '_collectEventTypes';
     const EVENT_COLLECT_EVENT_HANDLERS = '_collectEventHandlers';
@@ -137,5 +142,121 @@ class Module extends \yii\base\Module
         return true;
     }
 
+    public function deferredHandlerHead($tickCallback, $limitPerTick = 10)
+    {
+        $ticks = 0;
+        $tableName = BroadcastEventDeferred::tableName();
+        $queryWhere = ['and', '{{'.$tableName.'}}.[[broadcast_event_batch_id]] IS NULL', '{{'.$tableName.'}}.[[started]] IS NULL', ['or', '{{'.$tableName.'}}.[[scheduled]] IS NULL', '{{'.$tableName.'}}.[[scheduled]] < NOW()']];
+        $query = BroadcastEventDeferred::find()->orderBy(['{{e}}.[[priority]]' => SORT_DESC])->where($queryWhere)->limit($limitPerTick);
+        $query->join('INNER JOIN', BroadcastEvent::tableName() . ' e', '{{e}}.[[id]]={{'.$tableName.'}}.[[broadcast_event_id]]');
+        while(true) {
+            $ticks++;
+            $deferredItems = $query->all();
+            $skipCount = 0;
+            $itemCount = count($deferredItems);
+            $sleepAfter = $itemCount === 0;
+            foreach ($deferredItems as $item) {
+                if ($this->checkFail('BroadcastEventDeferred.'.$item->id)) {
+                    continue;
+                }
+                if(!$item->handle()) {
+                    $sleepAfter = true;
+                }
+            }
+            if ($skipCount === $limitPerTick ) {
+                exit(1);
+            }
+            call_user_func($tickCallback, $ticks);
+            if ($sleepAfter) {
+                sleep(5);
+            }
+        }
+    }
 
+    public function batchHandlerHead($tickCallback, $limitPerTick = 10)
+    {
+        $ticks = 0;
+        $tableName = BroadcastEventBatch::tableName();
+        $queryWhere = ['and', '{{'.$tableName.'}}.[[started]] IS NULL', ['or', '{{'.$tableName.'}}.[[scheduled]] IS NULL', '{{'.$tableName.'}}.[[scheduled]] < NOW()']];
+        $query = BroadcastEventBatch::find()->where($queryWhere)->limit($limitPerTick);
+        while(true) {
+            $ticks++;
+            $batches = $query->all();
+            $skipCount = 0;
+            $itemCount = count($batches);
+            $sleepAfter = $itemCount === 0;
+            foreach ($batches as $batch) {
+                if ($this->checkFail('BroadcastEventBatch.'.$batch->id)) {
+                    continue;
+                }
+                if(!$batch->handle()) {
+                    $sleepAfter = true;
+                }
+            }
+            if ($skipCount === $limitPerTick ) {
+                exit(1);
+            }
+            call_user_func($tickCallback, $ticks);
+            if ($sleepAfter) {
+                sleep(5);
+            }
+        }
+    }
+
+    public function ask($what)
+    {
+        if (!is_array($what)) {
+            return true;
+        }
+        if (isset($what[0]) && isset($what[1]) && $what[0] === 'handle') {
+            if ($what[1] instanceof BroadcastEvent) {
+                return !$this->checkFail('BroadcastEvent.'.$what[1]->id);
+            }
+            if ($what[1] instanceof BroadcastEventBatch) {
+                return !$this->checkFail('BroadcastEventBatch.'.$what[1]->id);
+            }
+            if ($what[1] instanceof BroadcastEventDeferred) {
+                return !$this->checkFail('BroadcastEventDeferred.'.$what[1]->id);
+            }
+        }
+        return true;
+    }
+
+    public function distributorHead($tickCallback, $limitPerTick = 10)
+    {
+        $ticks = 0;
+        while(true) {
+            $ticks++;
+            $eventsToDistribute = BroadcastEvent::find()->where(['handled' => 0])->orderBy(['priority' => SORT_DESC])->limit($limitPerTick)->all();
+            $skipCount = 0;
+            $itemCount = count($eventsToDistribute);
+            $sleepAfter = $itemCount === 0;
+            foreach ($eventsToDistribute as $event) {
+                if ($this->checkFail('BroadcastEvent.'.$event->id)) {
+                    $skipCount++;
+                    continue;
+                }
+                if(!$event->distribute($this)) {
+                    $sleepAfter = true;
+                }
+            }
+            if ($skipCount === $limitPerTick ) {
+                exit(1);
+            }
+            call_user_func($tickCallback, $ticks);
+            if ($sleepAfter) {
+                sleep(5);
+            }
+        }
+    }
+
+    private function checkFail($id)
+    {
+        $key = __CLASS__ . __FUNCTION__ . $id;
+        if (Cacher::get($key) === true) {
+            return true;
+        }
+        Cacher::set($key, true, 60);
+        return false;
+    }
 }

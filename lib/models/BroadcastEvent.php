@@ -3,6 +3,7 @@
 namespace canis\broadcaster\models;
 
 use Yii;
+use canis\broadcaster\eventTypes\EventType;
 
 /**
  * This is the model class for table "broadcast_event".
@@ -132,5 +133,79 @@ class BroadcastEvent extends \canis\db\ActiveRecord
     public function getBroadcastEventDeferreds()
     {
         return $this->hasMany(BroadcastEventDeferred::className(), ['broadcast_event_id' => 'id']);
+    }
+
+    public function distribute($caller = null)
+    {
+        if (!empty($this->handled)) {
+            return false;
+        }
+        $tableName = BroadcastSubscription::tableName();
+        $query = BroadcastSubscription::find();
+        // find subscriptions
+        $params = [];
+        $params[':broadcastEventTypeId'] = $this->broadcast_event_type_id;
+        $where = ['and'];
+        $eventQuery = ['or', '{{'.$tableName.'}}.[[object_id]] IS NULL'];
+        if (!empty($this->object_id)) {
+            $params[':objectId'] = $this->object_id;
+            $eventQuery[] = '{{'.$tableName.'}}.[[object_id]]=:objectId';
+        }
+        $where[] = $eventQuery;
+        $where[] = ['or', '{{'.$tableName.'}}.[[all_events]]=1', '{{m}}.[[broadcast_event_type_id]]=:broadcastEventTypeId'];
+        $query->params = $params;
+        $query->where($where)->join('LEFT JOIN', BroadcastSubscriptionEventType::tableName() .' m', '{{m}}.[[broadcast_subscription_id]]={{'.$tableName.'}}.[[id]]');
+
+        $broadcaster = Yii::$app->getModule('broadcaster');
+        $eventTypeModel = BroadcastEventType::get($this->broadcast_event_type_id);
+        $eventType = $broadcaster->getEventType($eventTypeModel->system_id);
+        if (!$eventType) {
+            return false;
+        }
+        $failed = false;
+        foreach ($query->all() as $subscription) {
+            // created batch, if necessary
+            $batch = null;
+            if ($eventType->batchable && !empty($subscription->batch_type)) {
+                $batch = BroadcastEventBatch::getBatch($subscription->user_id, $subscription->broadcast_handler_id, $subscription->batch_type);
+                if ($batch === false) {
+                    $failed = true;
+                    continue;
+                } elseif ($batch !== null) {
+                    $batch = $batch->primaryKey;
+                }
+            }
+
+
+            // create deferred items
+            $attributes = [
+                'broadcast_event_batch_id' => $batch,
+                'broadcast_subscription_id' => $subscription->primaryKey,
+                'broadcast_event_id' => $this->primaryKey
+            ];
+
+            if ($batch === null) {
+                $attributes['scheduled'] = $eventType->getSchedule($this);
+            }
+            $deferredHandler = new BroadcastEventDeferred;
+            $deferredHandler->attributes = $attributes;
+            if (!$deferredHandler->save()) {
+                $failed = true;
+                continue;
+            }
+            $this->handled = true;
+            $result = $this->save();
+            if ($this->priority === EventType::PRIORITY_CRITICAL) {
+                if ($caller !== null && $caller instanceof \canis\base\AskInterface) {
+                    if (!$caller->ask(['handle', $deferredHandler])) {
+                        continue;
+                    }
+                }
+                if (!$deferredHandler->handle()) {
+                    $failed = true;
+                }
+            }
+        }
+        return !$failed && $result;
     }
 }

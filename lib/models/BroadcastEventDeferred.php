@@ -3,6 +3,7 @@
 namespace canis\broadcaster\models;
 
 use Yii;
+use canis\broadcaster\components\Result;
 
 /**
  * This is the model class for table "broadcast_event_deferred".
@@ -22,6 +23,29 @@ use Yii;
  */
 class BroadcastEventDeferred extends \canis\db\ActiveRecord
 {
+    protected $_dataObject;
+
+    public function init()
+    {
+        parent::init();
+        $this->on(self::EVENT_BEFORE_VALIDATE, [$this, 'serializeData']);
+    }
+
+    /**
+     * [[@doctodo method_description:serializeAction]].
+     */
+    public function serializeData()
+    {
+        if (isset($this->_dataObject)) {
+            try {
+                $this->result = serialize($this->_dataObject);
+            } catch (\Exception $e) {
+                \d($this->_dataObject);
+                exit;
+            }
+        }
+    }
+
     /**
      * @inheritdoc
      */
@@ -87,5 +111,94 @@ class BroadcastEventDeferred extends \canis\db\ActiveRecord
     public function getBroadcastSubscription()
     {
         return $this->hasOne(BroadcastSubscription::className(), ['id' => 'broadcast_subscription_id']);
+    }
+
+    public function handle()
+    {
+        if (!empty($this->started)) {
+            return false;
+        }
+        $this->started = date("Y-m-d G:i:s");
+        if (!$this->save()) {
+            return false;
+        }
+        $result = $this->resultObject;
+        $broadcaster = Yii::$app->getModule('broadcaster');
+        if (!($event = BroadcastEvent::get($this->broadcast_event_id))) {
+            $this->fail("Event is invalid");
+            return false;
+        }
+        if (!($subscriptionModel = BroadcastSubscription::get($this->broadcast_subscription_id))) {
+            $this->fail("Subscription model is invalid");
+            return false;
+        }
+        if (!($handlerModel = BroadcastHandler::get($subscriptionModel->broadcast_handler_id))) {
+            $this->fail("Handler model is invalid");
+            return false;
+        }
+        if (!($handler = $broadcaster->getHandler($handlerModel->system_id))) {
+            $this->fail("Handler is invalid");
+            return false;
+        }
+        
+        if (!$handler->handle($this)) {
+            $this->fail("Item could not be handled");
+            return false;
+        }
+        $subscriptionModel->last_triggered = date("Y-m-d G:i:s");
+        $subscriptionModel->save();
+        return $this->complete();
+    }
+
+    public function complete($message = false)
+    {
+        if (empty($this->started)) {
+            $this->started = date('Y-m-d G:i:s');
+        }
+        $this->completed = date('Y-m-d G:i:s');
+        if ($message) {
+            $this->resultObject->message = $message;
+        }
+        return $this->save();
+    }
+
+    public function fail($error = false)
+    {
+        if (empty($this->started)) {
+            $this->started = date('Y-m-d G:i:s');
+        }
+        $this->resultObject->isValid = false;
+        if ($error) {
+            $this->resultObject->message = $error;
+        }
+        return $this->save();
+    }
+
+    /**
+     * Set action object.
+     *
+     * @param [[@doctodo param_type:ao]] $ao [[@doctodo param_description:ao]]
+     */
+    public function setResultObject($do)
+    {
+        $do->model = $this;
+        $this->_dataObject = $do;
+    }
+
+    /**
+     * Get action object.
+     *
+     * @return [[@doctodo return_type:getActionObject]] [[@doctodo return_description:getActionObject]]
+     */
+    public function getResultObject()
+    {
+        if (!isset($this->_dataObject) && !empty($this->result)) {
+            $this->_dataObject = unserialize($this->result);
+        } elseif (!isset($this->_dataObject)) {
+            $this->_dataObject = new Result;
+        }
+        $this->_dataObject->model = $this;
+
+        return $this->_dataObject;
     }
 }

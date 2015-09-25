@@ -40,6 +40,7 @@ class Bootstrap implements BootstrapInterface
 
     public function registerDaemon($event)
     {
-        $event->controller->registerDaemon('broadcaster', BroadcasterDaemon::getInstance());
+        $broadcaster = BroadcasterDaemon::getInstance();
+        $event->controller->registerDaemon('broadcaster', $broadcaster);
     }
 }
