@@ -69,14 +69,6 @@ class BroadcastHandler extends \canis\db\ActiveRecordRegistry
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getId0()
-    {
-        return $this->hasOne(Registry::className(), ['id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
     public function getBroadcastSubscriptions()
     {
         return $this->hasMany(BroadcastSubscription::className(), ['broadcast_handler_id' => 'id']);

@@ -1,5 +1,5 @@
 <?php
-namespace canis\broadcaster\handlers;
+namespace canis\broadcaster\handlers\configuration;
 abstract class EmailConfiguration extends Configuration
 {
 	public function validate()

@@ -31,11 +31,18 @@ class WebhookController extends BaseSubscription
         return 'Webhook' . (!$singular ? 's' : '');
     }
 
-    protected function getHandler()
+
+    protected function getHandlers()
     {
-        if (!($handler = $this->module->getHandler('webhook'))){
-            throw new \Exception("Unable to find webhook handler");
+        if (!($handlers = $this->module->getHandlers())){
+            throw new \Exception("Unable to find any handlers");
         }
-        return $handler;
+        $myHandlers = [];
+        foreach ($handlers as $id => $handler) {
+            if ($handler instanceof \canis\broadcaster\handlers\Webhook) {
+                $myHandlers[$id] = $handler;
+            }
+        }
+        return $myHandlers;
     }
 }

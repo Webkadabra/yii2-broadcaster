@@ -20,8 +20,13 @@ abstract class BaseWebCaller extends Handler implements HandlerInterface
 
     private function makeWebCall($method, $url, $options = [])
     {
-        $client = new \GuzzleHttp\Client();
-        $res = $client->request($method, $url, $options);
-        return $res->getStatusCode() === 200;
+        try {
+            $client = new \GuzzleHttp\Client();
+            $res = $client->request($method, $url, $options);
+            $result = $res->getStatusCode() === 200;
+        } catch (\Exception $e) {
+            $result = false;
+        }
+        return $result;
     }
 }

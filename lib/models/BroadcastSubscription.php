@@ -29,6 +29,7 @@ use canis\db\behaviors\TagBehavior;
 class BroadcastSubscription extends \canis\db\ActiveRecordRegistry
 {
     protected $_configObject;
+    protected $_handler;
 
     /**
      * @todo probably want to re-enable this after we fix access control
@@ -214,7 +215,10 @@ class BroadcastSubscription extends \canis\db\ActiveRecordRegistry
     public function getHandler()
     {
         if (!isset($this->_handler)) {
-
+            $handlerModel = BroadcastHandler::get($this->broadcast_handler_id);
+            if ($handlerModel) {
+                $this->_handler = Yii::$app->getModule('broadcaster')->getHandler($handlerModel->system_id);
+            }
         }
         return $this->_handler;
     }

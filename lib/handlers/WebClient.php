@@ -16,7 +16,7 @@ class WebClient extends Handler implements HandlerInterface
 
 	public function getConfigurationClass()
     {
-        return WebClientConfiguration::className();
+        return configuration\WebClientConfiguration::className();
     }
 
 	public function handle(BroadcastEventDeferred $item)

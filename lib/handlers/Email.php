@@ -17,7 +17,7 @@ class Email extends Handler implements HandlerInterface, BatchableHandlerInterfa
 
 	public function getConfigurationClass()
     {
-        return EmailConfiguration::className();
+        return configuration\EmailConfiguration::className();
     }
 
 	public function handle(BroadcastEventDeferred $item)

@@ -19,20 +19,25 @@ abstract class BaseSubscription extends BaseController
 	public $createView = '@canis/broadcaster/views/base/create';
 	public $deleteView = '@canis/broadcaster/views/base/delete';
 	
-	abstract protected function getHandler();
+	abstract protected function getHandlers();
 	abstract public function getGridViewColumns();
 	abstract public function getDescriptor($singular = false);
 
 	public function actionIndex()
     {
     	$params = [];
-    	$params['handler'] = $this->handler;
-    	$params['dataProvider'] = $this->handler->getSubscriptionProvider();
+    	$params['handlers'] = $this->handlers;
+    	$params['dataProvider'] = $this->getSubscriptionProvider();
     	$columns = [];
     	$columns[] = [
     		'class' => 'yii\grid\ActionColumn',
     		'template' => '{update} {delete}',
     		'options' => ['style' => 'width: 50px'],
+            'urlCreator' => function($action, $model, $key, $index) {
+                $url = [$action, 'id' => $model->id];
+                $url['handler'] = $model->handler->systemId;
+                return $url;
+            },
     		'buttons' => [
     			'update' => function ($url, $model, $key) {
         			return Html::a('<span class="fa fa-edit"></span>', $url, ['data-handler' => 'background']);
@@ -55,6 +60,11 @@ abstract class BaseSubscription extends BaseController
     public function actionCreate()
     {
     	$params = [];
+        $handlers = $this->handlers;
+        if (!isset($_GET['handler']) || !isset($handlers[$_GET['handler']])) {
+            throw new \yii\web\NotFoundHttpException("Handler not found!");
+        }
+        $params['handler'] = $handler = $handlers[$_GET['handler']];
     	$params['title'] = 'Create ' . $this->getDescriptor(false);
     	$params['descriptor'] = $this->getDescriptor(true);
     	$params['eventTypes'] = [];
@@ -67,18 +77,18 @@ abstract class BaseSubscription extends BaseController
     	if (isset($_GET['id'])) {
     		$action = 'update';
     		$params['model'] = $model = BroadcastSubscription::find()->where(['id' => $_GET['id']])->one();
-    		if (empty($model) || $model->broadcast_handler_id !== $this->handler->model->id || $model->user_id !== $userId) {
+    		if (empty($model) || $model->broadcast_handler_id !== $handler->model->id || $model->user_id !== $userId) {
     			throw \yii\web\NotFoundHttpException("Subscription not found!");
     		}
     	} else {
     		$action = 'create';
     		$params['model'] = $model = new BroadcastSubscription;
-    		$model->broadcast_handler_id = $this->handler->model->id;
+    		$model->broadcast_handler_id = $handler->model->id;
     		$model->user_id = $userId;
     		$model->all_events = 1;
     	}
 
-    	$configClass = $this->handler->getConfigurationClass();
+    	$configClass = $handler->getConfigurationClass();
     	if (!$model->configObject) {
     		$model->configObject = new $configClass;
     	}
@@ -108,12 +118,17 @@ abstract class BaseSubscription extends BaseController
     public function actionDelete()
     {
     	$userId = Yii::$app->user->id;
+        $handlers = $this->handlers;
+        if (!isset($_GET['handler']) || !isset($handlers[$_GET['handler']])) {
+            throw new \yii\web\NotFoundHttpException("Handler not found!");
+        }
+        $this->params['handler'] = $handler = $handlers[$_GET['handler']];
     	$this->params['title'] = 'Create ' . $this->getDescriptor(false);
     	$this->params['descriptor'] = $this->getDescriptor(true);
     	if (!empty($_GET['id'])) {
     		$model = BroadcastSubscription::find()->where(['id' => $_GET['id']])->one();
     	}
-		if (empty($model) || $model->broadcast_handler_id !== $this->handler->model->id || $model->user_id !== $userId) {
+		if (empty($model) || $model->broadcast_handler_id !== $handler->model->id || $model->user_id !== $userId) {
 			throw \yii\web\NotFoundHttpException("Subscription not found!");
 		}
         $this->params['subscription'] = $model;
@@ -131,5 +146,16 @@ abstract class BaseSubscription extends BaseController
         Yii::$app->response->taskOptions = ['title' => 'Delete ' . $this->getDescriptor(true), 'isConfirmDeletion' => true];
         Yii::$app->response->task = 'dialog';
         Yii::$app->response->view = $this->deleteView;
+    }
+
+    protected function getSubscriptionProvider()
+    {
+        $hanlderIds = [];
+        foreach ($this->handlers as $handler) {
+            $handlerIds[] = $handler->model->id;
+        }
+        return new \yii\data\ActiveDataProvider([
+            'query' => BroadcastSubscription::find()->where(['broadcast_handler_id' => $handlerIds])
+        ]);
     }
 }

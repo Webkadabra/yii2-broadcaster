@@ -1,5 +1,5 @@
 <?php
-namespace canis\broadcaster\handlers;
+namespace canis\broadcaster\handlers\configuration;
 class WebClientConfiguration extends Configuration
 {
 	public function getDescriptor()

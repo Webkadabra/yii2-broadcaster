@@ -1,5 +1,5 @@
 <?php
-namespace canis\broadcaster\handlers;
+namespace canis\broadcaster\handlers\configuration;
 abstract class Configuration extends \yii\base\Model
 {
 	public $model;

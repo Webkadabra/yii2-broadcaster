@@ -7,7 +7,14 @@ echo Html::beginTag('div', ['class' => 'panel panel-default']);
 echo Html::beginTag('div', ['class' => 'panel-heading']);
 echo Html::beginTag('h3', ['class' => 'panel-title']);
 echo Html::beginTag('div', ['class' => 'btn-group btn-group-sm pull-right']);
-echo Html::a('<span class="fa fa-plus"></span> Create', ['create'], ['class' => 'btn btn-primary', 'data-handler' => 'background']);
+echo Html::a('<span class="fa fa-plus"></span> Create', ['#'], ['class' => 'btn btn-primary dropdown-toggle', 'data-toggle' => 'dropdown']);
+
+echo Html::beginTag('ul', ['class' => 'dropdown-menu']);
+foreach ($handlers as $id => $handler) {
+	echo Html::tag('li', Html::a($handler->name, ['create', 'handler' => $id], ['class' => '', 'data-handler' => 'background']));
+}
+echo Html::endTag('ul');
+
 echo Html::endTag('div');
 echo $this->title;
 echo Html::endTag('h3');

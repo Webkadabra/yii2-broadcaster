@@ -6,45 +6,41 @@ use canis\broadcaster\models\BroadcastEventDeferred;
 use canis\broadcaster\models\BroadcastEvent;
 use canis\broadcaster\models\BroadcastEventType;
 use canis\broadcaster\models\BroadcastSubscription;
+use canis\helpers\StringHelper;
 
-class Webhook extends BaseWebCaller
+class IftttMaker extends Webhook
 {
 	public function getSystemId()
 	{
-		return 'webhook';
+		return 'ifttt_maker';
 	}
 
 	public function getName()
 	{
-		return 'Basic Webhook';
+		return 'IFTTT Maker';
 	}
 
-	public function getMethod(BroadcastEventDeferred $item)
-	{
-		return 'POST';
-	}
-	
     public function getConfigurationClass()
     {
-        return configuration\WebhookConfiguration::className();
+        return configuration\IftttMakerConfiguration::className();
     }
 
-    public function getUrl(BroadcastEventDeferred $item)
-    {
-    	$config = $this->getConfiguration($item);
-    	return $config->url;
-    }
 
     public function getOptions(BroadcastEventDeferred $item)
     {
+        $config = $this->getConfiguration($item);
     	$payload = $this->getEventPayload($item);
         $data = $payload->data;
         if (($eventType = $this->getEventType($item)) && (($event = $this->getEvent($item)))) {
             $data['meta'] = $eventType->getMeta($event);
         }
-        $options = ['body' => json_encode($data), 'headers' => []];
+        $payload = [];
+        $payload['value1'] = StringHelper::simpleTwig($config->value1, $data);
+        $payload['value2'] = StringHelper::simpleTwig($config->value2, $data);
+        $payload['value3'] = StringHelper::simpleTwig($config->value3, $data);
+        $options = ['body' => json_encode($payload), 'headers' => []];
         $options['headers']['Content-Type'] = 'application/json';
-        return $options;
+    	return $options;
     }
 
 }

@@ -103,11 +103,4 @@ abstract class Handler extends \yii\base\Component implements HandlerInterface
 	{
 		$this->_systemId = $systemId;
 	}
-
-	public function getSubscriptionProvider()
-	{
-		return new \yii\data\ActiveDataProvider([
-			'query' => BroadcastSubscription::find()->where(['broadcast_handler_id' => $this->model->id])
-		]);
-	}
 }

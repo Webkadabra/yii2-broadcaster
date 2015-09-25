@@ -1,5 +1,5 @@
 <?php
-namespace canis\broadcaster\handlers;
+namespace canis\broadcaster\handlers\configuration;
 class WebhookConfiguration extends Configuration
 {
 	public $url;
