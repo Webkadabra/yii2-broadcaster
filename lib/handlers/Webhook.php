@@ -38,7 +38,11 @@ class Webhook extends BaseWebCaller
     public function getOptions(BroadcastEventDeferred $item)
     {
     	$payload = $this->getEventPayload($item);
-    	return ['body' => json_encode($payload->data)];
+        $data = $payload->data;
+        if (($eventType = $this->getEventType($item)) && (($event = $this->getEvent($item)))) {
+            $data['meta'] = $eventType->getMeta($event);
+        }
+    	return ['body' => json_encode($data)];
     }
 
 }

@@ -1,5 +1,6 @@
 <?php
 namespace canis\broadcaster\eventTypes;
+use Yii;
 use canis\broadcaster\models\BroadcastEvent;
 use canis\broadcaster\models\BroadcastEventType;
 
@@ -21,6 +22,34 @@ abstract class EventType extends \yii\base\Component implements EventTypeInterfa
 	public function getSchedule(BroadcastEvent $event)
 	{
 		return null;
+	}
+
+	public function getDescriptor(BroadcastEvent $event)
+	{
+		if (!($this->getDescriptorString())) {
+			return false;
+		}
+		
+		return null;
+	}
+
+	public function getDescriptorString()
+	{
+		return false;
+	}
+
+	public function getMeta(BroadcastEvent $event)
+	{
+		$meta = [];
+		$meta['id'] = $event->primaryKey;
+		$meta['descriptor'] = $this->getDescriptor($event);
+		$meta['created'] = strtotime($event->created);
+		$meta['object'] = null;
+		$registryClass = Yii::$app->classes['Registry'];
+		if (!empty($event->object_id) && ($object = $registryClass::getObject($event->object_id))) {
+			$meta['object'] = ['id' => $object->id, 'descriptor' => $object->descriptor, 'subdescriptor' => $object->subdescriptor];
+		}
+		return $meta;
 	}
 
 	public function getPriority()
