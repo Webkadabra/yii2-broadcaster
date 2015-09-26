@@ -10,7 +10,7 @@ use canis\broadcaster\components\Result;
  *
  * @property string $id
  * @property string $user_id
- * @property string $broadcast_handler_id
+ * @property string $broadcast_subscription_id
  * @property resource $result
  * @property integer $handled
  * @property string $scheduled
@@ -64,11 +64,11 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'broadcast_handler_id'], 'required'],
+            [['user_id', 'broadcast_subscription_id'], 'required'],
             [['result'], 'string'],
             [['scheduled', 'created', 'started', 'completed'], 'safe'],
-            [['user_id', 'broadcast_handler_id'], 'string', 'max' => 36],
-            [['broadcast_handler_id'], 'exist', 'skipOnError' => true, 'targetClass' => BroadcastHandler::className(), 'targetAttribute' => ['broadcast_handler_id' => 'id']],
+            [['user_id', 'broadcast_subscription_id'], 'string', 'max' => 36],
+            [['broadcast_subscription_id'], 'exist', 'skipOnError' => true, 'targetClass' => BroadcastSubscription::className(), 'targetAttribute' => ['broadcast_subscription_id' => 'id']],
             // [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
@@ -81,7 +81,7 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
         return [
             'id' => 'ID',
             'user_id' => 'User ID',
-            'broadcast_handler_id' => 'Broadcast Handler ID',
+            'broadcast_subscription_id' => 'Broadcast Subscription',
             'result' => 'Result',
             'started' => 'Started',
             'completed' => 'Completed',
@@ -93,9 +93,9 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getBroadcastHandler()
+    public function getBroadcastSubscription()
     {
-        return $this->hasOne(BroadcastHandler::className(), ['id' => 'broadcast_handler_id']);
+        return $this->hasOne(BroadcastSubscription::className(), ['id' => 'broadcast_subscription_id']);
     }
 
     /**
@@ -119,13 +119,13 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
         if (!empty($this->started)) {
             return false;
         }
-        $this->started = date("Y-m-d G:i:s");
-        if (!$this->save()) {
-            return false;
-        }
         $result = $this->resultObject;
         $broadcaster = Yii::$app->getModule('broadcaster');
-        if (!($handlerModel = BroadcastHandler::get($this->broadcast_handler_id))) {
+        if (!($subscription = BroadcastSubscription::get($this->broadcast_subscription_id))) {
+            $this->fail("Subscription model is invalid");
+            return false;
+        }
+        if (!($handlerModel = BroadcastHandler::get($subscription->broadcast_handler_id))) {
             $this->fail("Handler model is invalid");
             return false;
         }
@@ -133,6 +133,16 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
             $this->fail("Handler is invalid");
             return false;
         }
+        
+        if (!$handler->isAvailable()) {
+            return true;
+        }
+
+        $this->started = date("Y-m-d G:i:s");
+        if (!$this->save()) {
+            return false;
+        }
+
         $deferredItems = BroadcastEventDeferred::find()->where(['and', ['broadcast_event_batch_id' => $this->id], 'started IS NULL'])->all();
         if (empty($deferredItems)) {
             $this->complete("No deferred items were found in this batch");
@@ -223,7 +233,7 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
         return $this->_dataObject;
     }
 
-    public static function getBatch($userId, $handlerId, $batchType)
+    public static function getBatch($userId, $subscriptionId, $batchType)
     {
         if (empty($batchType)) {
             return null;
@@ -250,7 +260,7 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
             throw new \Exception("Invalid batch type: {$batchType}");
             return null;
         }
-        $params = ['scheduled' => $scheduled, 'user_id' => $userId, 'broadcast_handler_id' => $handlerId];
+        $params = ['scheduled' => $scheduled, 'user_id' => $userId, 'broadcast_subscription_id' => $subscriptionId];
         $batch = static::find()->where($params)->one();
         if (!$batch) {
             $batch = new static;

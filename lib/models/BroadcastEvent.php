@@ -167,7 +167,7 @@ class BroadcastEvent extends \canis\db\ActiveRecord
             // created batch, if necessary
             $batch = null;
             if ($eventType->batchable && !empty($subscription->batch_type)) {
-                $batch = BroadcastEventBatch::getBatch($subscription->user_id, $subscription->broadcast_handler_id, $subscription->batch_type);
+                $batch = BroadcastEventBatch::getBatch($subscription->user_id, $subscription->primaryKey, $subscription->batch_type);
                 if ($batch === false) {
                     $failed = true;
                     continue;

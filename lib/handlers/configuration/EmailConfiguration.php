@@ -5,6 +5,7 @@ use Yii;
 class EmailConfiguration extends Configuration
 {
 	public $subject;
+	public $type;
 
 	public function getDescriptor()
 	{
@@ -14,8 +15,8 @@ class EmailConfiguration extends Configuration
 	public function rules()
 	{
 		return [
-            [['subject'], 'string'],
-            [['subject'], 'required'],
+            [['subject', 'type'], 'string'],
+            [['subject', 'type'], 'required'],
 		];
 	}
 
@@ -25,13 +26,21 @@ class EmailConfiguration extends Configuration
 		$f['subject'] = [
 			'type' => 'text'
 		];
+		$f['type'] = [
+			'type' => 'select',
+			'options' => [
+				'rich' => 'Rich Text',
+				'plain' => 'Plain Text'
+			]
+		];
 		return $f;
 	}
 
 	public function defaultValues()
 	{
 		return [
-			'subject' => 'Notification from '. Yii::$app->name
+			'subject' => 'Notification from '. Yii::$app->name,
+			'type' => 'rich'
 		];
 	}
 	/**

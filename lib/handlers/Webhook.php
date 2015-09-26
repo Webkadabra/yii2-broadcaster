@@ -14,6 +14,11 @@ class Webhook extends BaseWebCaller
 		return 'webhook';
 	}
 
+    public function isAvailable()
+    {
+        return true;
+    }
+    
 	public function getName()
 	{
 		return 'Basic Webhook';

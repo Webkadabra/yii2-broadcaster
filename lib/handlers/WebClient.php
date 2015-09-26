@@ -19,6 +19,11 @@ class WebClient extends Handler implements HandlerInterface
         return configuration\WebClientConfiguration::className();
     }
 
+    public function isAvailable()
+    {
+        return false;
+    }
+
 	public function handle(BroadcastEventDeferred $item)
     {
     	return false;

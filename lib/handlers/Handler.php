@@ -12,8 +12,10 @@ abstract class Handler extends \yii\base\Component implements HandlerInterface
 {
 	protected $_model;
 	protected $_systemId;
+    public $lastError;
 
 	abstract public function getName();
+    abstract public function isAvailable();
 
 	public function getModel()
 	{
@@ -75,7 +77,16 @@ abstract class Handler extends \yii\base\Component implements HandlerInterface
         return $broadcaster->getEventType($eventTypeModel->system_id);
     }
 
-    public function getConfiguration(BroadcastEventDeferred $item)
+    public function getConfiguration(BroadcastSubscription $subscription)
+    {
+        if (!($configuration = $subscription->configObject)) {
+            $item->fail("Configuration object is invalid");
+            return false;
+        }
+        return $configuration;
+    }
+
+    public function getSubscriptionModel(BroadcastEventDeferred $item)
     {
         $result = $item->resultObject;
         $broadcaster = Yii::$app->getModule('broadcaster');
@@ -87,11 +98,18 @@ abstract class Handler extends \yii\base\Component implements HandlerInterface
             $item->fail("Subscription model is invalid");
             return false;
         }
-        if (!($configuration = $subscriptionModel->configObject)) {
-            $item->fail("Configuration object is invalid");
+        return $subscriptionModel;
+    }
+
+
+    public function getUser(BroadcastSubscription $subscription)
+    {
+        $userClass = Yii::$app->classes['User'];
+        if (!($user = $userClass::get($subscription->user_id))) {
+            $item->fail("User object is invalid");
             return false;
         }
-        return $configuration;
+        return $user;
     }
 
 	public function getSystemId()

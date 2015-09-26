@@ -65,8 +65,8 @@ if ($handler instanceof \canis\broadcaster\handlers\BatchableHandlerInterface) {
 }
 
 foreach ($model->configObject->getAttributeConfig() as $attribute => $config) {
-	if (!isset($config['options'])) {
-		$config['options'] = [];
+	if (!isset($config['htmlOptions'])) {
+		$config['htmlOptions'] = [];
 	}
 	if (!isset($config['type'])) {
 		$config['type'] = 'text';
@@ -75,14 +75,20 @@ foreach ($model->configObject->getAttributeConfig() as $attribute => $config) {
 		$config['type'] = 'text';
 		Html::addCssClass($config['options'], 'form-taggable');
 	}
-	Html::addCssClass($config['options'], 'form-control');
+	Html::addCssClass($config['htmlOptions'], 'form-control');
 	$fieldExtra = '';
 	if (!empty($model->configObject->errors[$attribute])) {
 		$fieldExtra = 'has-feedback has-error';
 	}
 	echo Html::beginTag('div', ['class' => 'form-group ' . $fieldExtra]);
 	echo Html::activeLabel($model->configObject, $attribute);
-	echo Html::activeInput($config['type'], $model->configObject, $attribute, $config['options']);
+	if ($config['type'] === 'select') {
+		$options = isset($config['options']) ? $config['options'] : [];
+		unset($config['options']);
+		echo Html::activeDropDownList($model->configObject, $attribute, $options, $config['htmlOptions']);
+	} else {
+		echo Html::activeInput($config['type'], $model->configObject, $attribute, $config['htmlOptions']);
+	}
 	echo Html::error($model->configObject, $attribute, ['class' => 'help-inline text-danger']);
 	echo Html::endTag('div');
 }

@@ -118,10 +118,6 @@ class BroadcastEventDeferred extends \canis\db\ActiveRecord
         if (!empty($this->started)) {
             return false;
         }
-        $this->started = date("Y-m-d G:i:s");
-        if (!$this->save()) {
-            return false;
-        }
         $result = $this->resultObject;
         $broadcaster = Yii::$app->getModule('broadcaster');
         if (!($event = BroadcastEvent::get($this->broadcast_event_id))) {
@@ -140,9 +136,18 @@ class BroadcastEventDeferred extends \canis\db\ActiveRecord
             $this->fail("Handler is invalid");
             return false;
         }
+
+        if (!$handler->isAvailable()) {
+            return true;
+        }
+
+        $this->started = date("Y-m-d G:i:s");
+        if (!$this->save()) {
+            return false;
+        }
         
         if (!$handler->handle($this)) {
-            $this->fail("Item could not be handled");
+            $this->fail("Item could not be handled: " . $handler->lastError);
             return false;
         }
         $subscriptionModel->last_triggered = date("Y-m-d G:i:s");
