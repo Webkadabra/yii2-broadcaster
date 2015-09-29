@@ -191,8 +191,8 @@ class Module
                     $sleepAfter = true;
                 }
             }
-            if ($skipCount === $limitPerTick ) {
-                exit(1);
+            if ($skipCount !== 0 && $skipCount === $limitPerTick ) {
+                Yii::$app->end(1);
             }
             call_user_func($tickCallback, $ticks);
             if ($sleepAfter) {
@@ -221,13 +221,14 @@ class Module
                     $sleepAfter = true;
                 }
             }
-            if ($skipCount === $limitPerTick ) {
-                exit(1);
+            if ($skipCount !== 0 && $skipCount === $limitPerTick ) {
+                Yii::$app->end(1);
             }
             call_user_func($tickCallback, $ticks);
             if ($sleepAfter) {
                 sleep(5);
             }
+            Yii::$app->end(0);
         }
     }
 
@@ -269,7 +270,7 @@ class Module
                 }
             }
             if ($skipCount === $limitPerTick ) {
-                exit(1);
+                Yii::$app->end(1);
             }
             call_user_func($tickCallback, $ticks);
             if ($sleepAfter) {

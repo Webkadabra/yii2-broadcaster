@@ -6,5 +6,5 @@ use canis\broadcaster\models\BroadcastSubscription;
 
 interface BatchableHandlerInterface {
 
-	public function handleBatch(BroadcastEventBatch $batch, Subscription $subscription, array $deferredItems);
+	public function handleBatch(BroadcastEventBatch $batch, BroadcastSubscription $subscription, array $deferredItems);
 }

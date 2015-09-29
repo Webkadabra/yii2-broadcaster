@@ -85,7 +85,7 @@ class Email extends Handler implements HandlerInterface, BatchableHandlerInterfa
         return $mail->send();
     }
 
-    public function handleBatch(BroadcastEventBatch $batch, Subscription $subscription, array $deferredItems)
+    public function handleBatch(BroadcastEventBatch $batch, BroadcastSubscription $subscription, array $deferredItems)
     {
         $configuration = $this->getConfiguration($subscription);
         if (!$configuration || !$subscription) { return false; }
@@ -112,7 +112,7 @@ class Email extends Handler implements HandlerInterface, BatchableHandlerInterfa
         }
         $result = $mail->send();
         if (!$result) {
-
+            
         }
         return $result;
     }

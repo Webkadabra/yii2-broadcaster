@@ -195,7 +195,7 @@ class BroadcastEvent extends \canis\db\ActiveRecord
             }
             $this->handled = true;
             $result = $this->save();
-            if ($this->priority === EventType::PRIORITY_CRITICAL) {
+            if (empty($batch) && $this->priority === EventType::PRIORITY_CRITICAL) {
                 if ($caller !== null && $caller instanceof \canis\base\AskInterface) {
                     if (!$caller->ask(['handle', $deferredHandler])) {
                         continue;

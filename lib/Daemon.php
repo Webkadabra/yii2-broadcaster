@@ -58,7 +58,7 @@ class Daemon extends DaemonBase
         				}
         			}
         			if (!$anyRunning) {
-        				exit(0);
+        				Yii::$app->end(0);
         			}
         		}
         	});
@@ -89,7 +89,7 @@ class Daemon extends DaemonBase
                 sleep(10);
             }
             if (static::isPaused()) {
-            	exit(0);
+            	Yii::$app->end(0);
             }
             $_this->_heads[$headId] = $_this->startHead($controller, $headType, $headId, true);
         });
@@ -110,10 +110,10 @@ class Daemon extends DaemonBase
     public function tickCallback($ticks)
     {
     	if (static::isPaused()) {
-    		exit(0);
+    		Yii::$app->end(0);
     	}
     	if ($ticks > 100) {
-    		exit(0);
+    		Yii::$app->end(0);
     	}
     }
 

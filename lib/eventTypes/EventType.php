@@ -44,7 +44,7 @@ abstract class EventType extends \yii\base\Component implements EventTypeInterfa
 		$meta['id'] = $event->primaryKey;
 		$meta['descriptor'] = $this->getDescriptor($event);
 		$meta['created'] = strtotime($event->created);
-		$meta['created_human'] = date("M d, Y g:i:sA", strtotime($event->created));
+		$meta['created_human'] = date("M d, Y g:i:s A", strtotime($event->created));
 		$meta['object'] = null;
 		$registryClass = Yii::$app->classes['Registry'];
 		if (!empty($event->object_id) && ($object = $registryClass::getObject($event->object_id))) {

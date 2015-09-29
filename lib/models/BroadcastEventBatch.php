@@ -135,11 +135,13 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
         }
         
         if (!$handler->isAvailable()) {
+            echo "Handler is not available...\n";
             return true;
         }
 
         $this->started = date("Y-m-d G:i:s");
         if (!$this->save()) {
+            $this->fail("Unsable to start model");
             return false;
         }
 
@@ -162,11 +164,11 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
                 $this->complete("Batch couldn't be processed, but each deferred was handled individually");
             }
         } else {
-            if (!$handler->handleBatch($this, $deferredItems)) {
+            if (!$handler->handleBatch($this, $subscription, $deferredItems)) {
                 $this->fail("Deferred batch could not be handled");
                 $result = false;
             } else {
-                $this->complete();
+                $this->complete("Batch was processed");
             }
             foreach ($deferredItems as $deferredItem) {
                 if ($result) {
