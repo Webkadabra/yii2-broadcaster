@@ -124,7 +124,7 @@ class BroadcastEventDeferred extends \canis\db\ActiveRecord
             $this->fail("Event is invalid");
             return false;
         }
-        if (!($subscriptionModel = BroadcastSubscription::get($this->broadcast_subscription_id))) {
+        if (!($subscriptionModel = BroadcastSubscription::get($this->broadcast_subscription_id)) || !$subscriptionModel->isValid()) {
             $this->fail("Subscription model is invalid");
             return false;
         }

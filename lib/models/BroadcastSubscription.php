@@ -84,6 +84,18 @@ class BroadcastSubscription extends \canis\db\ActiveRecordRegistry
             return false;
         }
     }
+
+    public function isValid()
+    {
+        $userClass = Yii::$app->classes['User'];
+        $user = $userClass::get($this->user_id);
+        if (!$user || !$user->isActive()) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function behaviors()
     {
         return array_merge(parent::behaviors(), [

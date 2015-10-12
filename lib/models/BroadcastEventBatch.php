@@ -121,7 +121,7 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
         }
         $result = $this->resultObject;
         $broadcaster = Yii::$app->getModule('broadcaster');
-        if (!($subscription = BroadcastSubscription::get($this->broadcast_subscription_id))) {
+        if (!($subscriptionModel = BroadcastSubscription::get($this->broadcast_subscription_id)) || !$subscriptionModel->isValid()) {
             $this->fail("Subscription model is invalid");
             return false;
         }
