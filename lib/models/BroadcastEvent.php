@@ -194,7 +194,10 @@ class BroadcastEvent extends \canis\db\ActiveRecord
                 continue;
             }
             $this->handled = true;
-            $result = $this->save();
+            $saveResult = $this->save();
+            if (!$saveResult) {
+                $failed = true;
+            }
             if (empty($batch) && $this->priority === EventType::PRIORITY_CRITICAL) {
                 if ($caller !== null && $caller instanceof \canis\base\AskInterface) {
                     if (!$caller->ask(['handle', $deferredHandler])) {
@@ -206,6 +209,6 @@ class BroadcastEvent extends \canis\db\ActiveRecord
                 }
             }
         }
-        return !$failed && $result;
+        return !$failed;
     }
 }
