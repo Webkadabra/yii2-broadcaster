@@ -152,7 +152,7 @@ class BroadcastEvent extends \canis\db\ActiveRecord
             case EventType::PRIORITY_CRITICAL:
                 $priorities[] = EventType::PRIORITY_HIGH;
             case EventType::PRIORITY_HIGH:
-                $priorities[] = EventType::PRIORITY_MEDIUM
+                $priorities[] = EventType::PRIORITY_MEDIUM;
             case EventType::PRIORITY_MEDIUM:
                 $priorities[] = EventType::PRIORITY_LOW;
             break;
