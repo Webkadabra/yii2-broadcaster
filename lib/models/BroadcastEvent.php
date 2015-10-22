@@ -142,10 +142,22 @@ class BroadcastEvent extends \canis\db\ActiveRecord
         }
         $tableName = BroadcastSubscription::tableName();
         $query = BroadcastSubscription::find();
+        $broadcaster = Yii::$app->getModule('broadcaster');
         // find subscriptions
         $params = [];
         $params[':broadcastEventTypeId'] = $this->broadcast_event_type_id;
         $where = ['and'];
+        $priorities = [$this->priority];
+        switch ($this->priority) {
+            case EventType::PRIORITY_CRITICAL:
+                $priorities[] = EventType::PRIORITY_HIGH;
+            case EventType::PRIORITY_HIGH:
+                $priorities[] = EventType::PRIORITY_MEDIUM
+            case EventType::PRIORITY_MEDIUM:
+                $priorities[] = EventType::PRIORITY_LOW;
+            break;
+        }
+        $where[] = '{{'.$tableName.'}}.[[minimum_priority]] IN (\''.implode("','", $priorities).'\')';;
         $eventQuery = ['or', '{{'.$tableName.'}}.[[object_id]] IS NULL'];
         if (!empty($this->object_id)) {
             $params[':objectId'] = $this->object_id;
@@ -156,7 +168,6 @@ class BroadcastEvent extends \canis\db\ActiveRecord
         $query->params = $params;
         $query->where($where)->join('LEFT JOIN', BroadcastSubscriptionEventType::tableName() .' m', '{{m}}.[[broadcast_subscription_id]]={{'.$tableName.'}}.[[id]]');
 
-        $broadcaster = Yii::$app->getModule('broadcaster');
         $eventTypeModel = BroadcastEventType::get($this->broadcast_event_type_id);
         $eventType = $broadcaster->getEventType($eventTypeModel->system_id);
         if (!$eventType) {

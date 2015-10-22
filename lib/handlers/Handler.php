@@ -112,6 +112,12 @@ abstract class Handler extends \yii\base\Component implements HandlerInterface
         return $user;
     }
 
+    public function getAllowMinimumPriorityFilter()
+    {
+        $broadcaster = Yii::$app->getModule('broadcaster');
+        return $broadcaster->allowMinimumPriorityFilter;
+    }
+
 	public function getSystemId()
 	{
 		return $this->_systemId;

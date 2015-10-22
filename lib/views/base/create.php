@@ -1,6 +1,7 @@
 <?php
 use yii\helpers\Html;
 use canis\broadcaster\models\BroadcastEventBatch;
+use canis\broadcaster\eventTypes\EventType;
 
 canis\web\assetBundles\BootstrapSelectAsset::register($this);
 
@@ -45,6 +46,25 @@ echo Html::activeLabel($model, 'eventTypes');
 echo Html::activeDropDownList($model, 'eventTypes', $eventTypes, ['class' => 'selectpicker form-control', 'multiple' => true]);
 echo Html::error($model, 'eventTypes', ['class' => 'help-inline text-danger']);
 echo Html::endTag('div');
+
+
+if ($handler->getAllowMinimumPriorityFilter()) {
+	$fieldExtra = '';
+	if (!empty($model->errors['minimum_priority'])) {
+		$fieldExtra = 'has-feedback has-error';
+	}
+	$priorities = [
+		EventType::PRIORITY_LOW => 'Low',
+		EventType::PRIORITY_MEDIUM => 'Medium',
+		EventType::PRIORITY_HIGH => 'High',
+		EventType::PRIORITY_CRITICAL => 'Critical'
+	];
+	echo Html::beginTag('div', ['class' => 'form-group ' . $fieldExtra]);
+	echo Html::activeLabel($model, 'minimum_priority');
+	echo Html::activeDropDownList($model, 'minimum_priority', $priorities, ['class' => 'selectpicker form-control']);
+	echo Html::error($model, 'minimum_priority', ['class' => 'help-inline text-danger']);
+	echo Html::endTag('div');
+}
 
 if ($handler instanceof \canis\broadcaster\handlers\BatchableHandlerInterface) {
 	$fieldExtra = '';

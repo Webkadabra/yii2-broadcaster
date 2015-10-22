@@ -18,9 +18,6 @@ class DefaultController extends BaseController
     public function actionIndex()
     {
         $broadcaster = Yii::$app->getModule('broadcaster');
-        $broadcasterFriendly = $broadcaster->friendlyUrl;
-        foreach ($broadcaster->controllerMap as $id => $controller) {
-            $this->redirect(['/' . $broadcaster->friendlyUrl .'/'.$id]);
-        }
+        $this->redirect(['/' . $broadcaster->friendlyUrl .'/'.$broadcaster->defaultHandler]);
     }
 }

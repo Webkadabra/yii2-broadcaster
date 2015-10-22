@@ -24,8 +24,10 @@ class Module
 
     protected $_handlers = [];
     protected $_eventTypes = [];
+    protected $_defaultHandler;
 
     public $friendlyUrl = 'notification';
+    public $allowMinimumPriorityFilter = true;
 
     /**
      * @inheritdoc
@@ -277,6 +279,22 @@ class Module
                 sleep(5);
             }
         }
+    }
+
+    public function setDefaultHandler($defaultHandler)
+    {
+        $this->_defaultHandler = $defaultHandler;
+    }
+
+    public function getDefaultHandler()
+    {
+        if (isset($this->_defaultHandler)) {
+            return $this->_defaultHandler;
+        }
+        foreach ($this->controllerMap as $id => $controller) {
+            return $id;
+        }
+        return null;
     }
 
     private function checkFail($id)

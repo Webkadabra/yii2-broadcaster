@@ -12,6 +12,7 @@ use canis\db\behaviors\TagBehavior;
  * @property string $user_id
  * @property string $object_id
  * @property string $broadcast_handler_id
+ * @property string $minimum_priority
  * @property bool $all_events
  * @property string $name
  * @property string $batch_type
@@ -151,7 +152,7 @@ class BroadcastSubscription extends \canis\db\ActiveRecordRegistry
             [['user_id', 'broadcast_handler_id'], 'required'],
             [['all_events'], 'integer'],
             [['all_events'], 'checkEvents'],
-            [['batch_type', 'config'], 'string'],
+            [['batch_type', 'config', 'minimum_priority'], 'string'],
             [['created', 'last_triggered'], 'safe'],
             [['id', 'user_id', 'object_id', 'broadcast_handler_id'], 'string', 'max' => 36],
             [['name'], 'string', 'max' => 255],
