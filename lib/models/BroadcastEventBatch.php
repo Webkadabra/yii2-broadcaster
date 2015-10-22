@@ -125,7 +125,7 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
             $this->fail("Subscription model is invalid");
             return false;
         }
-        if (!($handlerModel = BroadcastHandler::get($subscription->broadcast_handler_id))) {
+        if (!($handlerModel = BroadcastHandler::get($subscriptionModel->broadcast_handler_id))) {
             $this->fail("Handler model is invalid");
             return false;
         }
