@@ -164,7 +164,7 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
                 $this->complete("Batch couldn't be processed, but each deferred was handled individually");
             }
         } else {
-            if (!$handler->handleBatch($this, $subscription, $deferredItems)) {
+            if (!$handler->handleBatch($this, $subscriptionModel, $deferredItems)) {
                 $this->fail("Deferred batch could not be handled");
                 $result = false;
             } else {
