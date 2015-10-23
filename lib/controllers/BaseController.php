@@ -12,24 +12,27 @@ use Yii;
 use yii\web\NotFoundHttpException;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use canis\web\unifiedMenu\Menu;
 
-class BaseController extends \canis\web\Controller
+class BaseController 
+    extends \canis\web\Controller
+    implements \canis\web\unifiedMenu\MenuProviderInterface
 {
-    public function beforeAction($action)
+
+    public static function provideMenuItems(Menu $menu)
     {
-        if (!parent::beforeAction($action)) {
-            return false;
+        $menu = [];
+        $broadcaster = Yii::$app->getModule('broadcaster');
+        $managers = $broadcaster->getControllerItems();
+        foreach ($managers as $id => $label) {
+            $item = [];
+            $item['url'] = ['/'. $broadcaster->friendlyUrl .'/' . $id];
+            $item['label'] = $label;
+            $menu['broadcaster-'.$id] = $item;
         }
-        $layout = $this->layout;
-        if ($layout === null) {
-            $layout = Yii::$app->layout;
-        }
-        $layout = Yii::$app->layoutPath . DIRECTORY_SEPARATOR . $layout .'.php';
-        $this->view->params['originalLayout'] = $layout;
-        $this->layout = 'main';
-        return true;
+        return $menu;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -52,6 +55,10 @@ class BaseController extends \canis\web\Controller
                         'roles' => ['?'],
                     ],
                 ],
+            ],
+            'UnifiedMenu' => [
+                'class' => \canis\web\unifiedMenu\ControllerBehavior::className(),
+                'providingController' => BaseController::className()
             ]
         ];
     }
