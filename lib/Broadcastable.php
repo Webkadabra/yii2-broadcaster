@@ -1,12 +1,11 @@
 <?php
-namespace canis\broadcaster\components;
+namespace canis\broadcaster;
  
 use Yii;
-use canis\broadcaster\Module;
+use canis\broadcaster\components\Payload;
 
-trait BroadcastableTrait {
-	//static public function collectEventTypes();
-
+class Broadcastable extends \yii\base\Behavior
+{
 	public function triggerBroadcastEvent($id, $payload, $objectId = null, $priority = null)
 	{
 		if (!is_object($payload)) {
@@ -15,9 +14,10 @@ trait BroadcastableTrait {
 		if (!($payload instanceof Payload)) {
 			return false;
 		}
-		$eventTypeId = Module::generateEventTypeId($id, get_class($this));
+		$eventTypeId = Module::generateEventTypeId($id, get_class($this->owner));
 		$eventType = Yii::$app->getModule('broadcaster')->getEventType($eventTypeId);
 		if (!$eventType) {
+			throw new \Exception("{$eventTypeId}");
 			return false;
 		}
 		return $eventType->triggerBroadcastEvent($payload, $objectId, $priority);

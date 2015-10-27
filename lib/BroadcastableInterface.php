@@ -1,5 +1,5 @@
 <?php
-namespace canis\broadcaster\components;
+namespace canis\broadcaster;
 
 interface BroadcastableInterface {
 	static public function collectEventTypes();

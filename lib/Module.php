@@ -114,7 +114,7 @@ class Module
     {
         foreach ($eventTypeContainers as $container) {
             $reflection = new \ReflectionClass($container);
-            if (!$reflection->implementsInterface(components\BroadcastableInterface::class)) {
+            if (!$reflection->implementsInterface(BroadcastableInterface::class)) {
                 throw new \Exception("Event type container configuration is not valid");
             }
             $this->registerEventTypes($container::collectEventTypes(), $container);
@@ -267,7 +267,7 @@ class Module
                     $skipCount++;
                     continue;
                 }
-                if(!$event->distribute($this)) {
+                if(!$event->handle($this)) {
                     $sleepAfter = true;
                 }
             }

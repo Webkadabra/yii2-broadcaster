@@ -106,7 +106,6 @@ abstract class Handler extends \yii\base\Component implements HandlerInterface
     {
         $userClass = Yii::$app->classes['User'];
         if (!($user = $userClass::get($subscription->user_id))) {
-            $item->fail("User object is invalid");
             return false;
         }
         return $user;

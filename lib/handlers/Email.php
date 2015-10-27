@@ -31,6 +31,9 @@ class Email extends Handler implements HandlerInterface, BatchableHandlerInterfa
     protected function discoverTo(BroadcastSubscription $subscription)
     {
         $user = $this->getUser($subscription);
+        if (!$user) {
+            return false;
+        }
         return $user->email;
     }
 
@@ -50,7 +53,14 @@ class Email extends Handler implements HandlerInterface, BatchableHandlerInterfa
 
     protected function prepareMail(BroadcastSubscription $subscription, $mail)
     {
-        return $mail->setTo($this->discoverTo($subscription))->setSubject($this->discoverSubject($subscription))->setFrom($this->discoverFrom($subscription));
+        
+        $to = $this->discoverTo($subscription);
+        $from = $this->discoverFrom($subscription);
+        $subject = $this->discoverSubject($subscription);
+        if (!$to || !$from || !$subject) {
+            return false;
+        }
+        return $mail->setTo($to)->setSubject($subject)->setFrom($from);
     }
 
 	public function handle(BroadcastEventDeferred $item)
@@ -58,7 +68,6 @@ class Email extends Handler implements HandlerInterface, BatchableHandlerInterfa
         $subscription = $this->getSubscriptionModel($item);
         $configuration = $this->getConfiguration($subscription);
         if (!$configuration || !$subscription) { 
-            throw new \Exception("WHAT?");
             return false; 
         }
         $contentType = (isset($configuration->type) && $configuration->type === 'plain') ? 'plain' : 'rich';
@@ -78,8 +87,7 @@ class Email extends Handler implements HandlerInterface, BatchableHandlerInterfa
         $params['configuration'] = $configuration;
         $params['subject'] = $this->discoverSubject($subscription);
         $mail = $this->prepareMail($subscription, Yii::$app->mailer->compose($view, $params));
-        if (!($from = $mail->getFrom()) || empty($from)) {
-            throw new \Exception("WHAT NO EMAIL?");
+        if (!$mail || !($from = $mail->getFrom()) || empty($from)) {
             return false;
         }
         return $mail->send();

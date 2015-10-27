@@ -25,12 +25,17 @@ abstract class EventType extends \yii\base\Component implements EventTypeInterfa
 		return null;
 	}
 
+	public function getDescriptorMeta(BroadcastEvent $event)
+	{
+		return $event->payloadObject->data;
+	}
+
 	public function getDescriptor(BroadcastEvent $event)
 	{
 		if (!($descriptor = $this->getDescriptorString())) {
 			return false;
 		}
-		return StringHelper::simpleTwig($descriptor, $event->payloadObject->data);
+		return StringHelper::simpleTwig($descriptor, $this->getDescriptorMeta($event));
 	}
 
 	public function getDescriptorString()
@@ -41,6 +46,7 @@ abstract class EventType extends \yii\base\Component implements EventTypeInterfa
 	public function getMeta(BroadcastEvent $event)
 	{
 		$meta = [];
+		$meta['_application'] = Yii::$app->name;
 		$meta['id'] = $event->primaryKey;
 		$meta['descriptor'] = $this->getDescriptor($event);
 		$meta['created'] = strtotime($event->created);
@@ -74,6 +80,11 @@ abstract class EventType extends \yii\base\Component implements EventTypeInterfa
 		if (is_object($objectId)) {
 			$objectId = $objectId->primaryKey;
 		}
+		foreach ($this->getRequiredPayloadKeys() as $key) {
+			if (!isset($payload->data[$key])) {
+				return false;
+			}
+		}
 		$model = new BroadcastEvent;
 		$model->broadcast_event_type_id = $this->model->primaryKey;
 		$model->priority = $priority;
@@ -100,6 +111,11 @@ abstract class EventType extends \yii\base\Component implements EventTypeInterfa
 			}
 		}
 		return $this->_model;
+	}
+	
+	public function getRequiredPayloadKeys()
+	{
+		return [];
 	}
 
 	public function getSystemId()
