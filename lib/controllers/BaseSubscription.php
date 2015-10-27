@@ -12,6 +12,7 @@ use Yii;
 use yii\helpers\Html;
 use canis\broadcaster\models\BroadcastEventType;
 use canis\broadcaster\models\BroadcastSubscription;
+use canis\broadcaster\eventTypes\UserNotificationInterface;
 
 abstract class BaseSubscription 
     extends BaseController
@@ -71,6 +72,9 @@ abstract class BaseSubscription
     	$params['descriptor'] = $this->getDescriptor(true);
     	$params['eventTypes'] = [];
     	foreach ($this->module->getEventTypes() as $type) {
+            if ($type instanceof UserNotificationInterface) {
+                continue;
+            }
     		$params['eventTypes'][$type->model->primaryKey] = $type->name;
     	}
     	// \d($params);
