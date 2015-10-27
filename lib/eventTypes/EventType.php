@@ -25,11 +25,6 @@ abstract class EventType extends \yii\base\Component implements EventTypeInterfa
 		return null;
 	}
 
-	public function getDescriptorMeta(BroadcastEvent $event)
-	{
-		return $event->payloadObject->data;
-	}
-
 	public function getDescriptor(BroadcastEvent $event)
 	{
 		if (!($descriptor = $this->getDescriptorString())) {
@@ -42,6 +37,14 @@ abstract class EventType extends \yii\base\Component implements EventTypeInterfa
 	{
 		return false;
 	}
+
+	public function getDescriptorMeta(BroadcastEvent $event)
+	{
+		$meta = $event->payloadObject->data;
+		$meta['_application'] = Yii::$app->name;
+		return $meta;
+	}
+
 
 	public function getMeta(BroadcastEvent $event)
 	{
