@@ -263,7 +263,6 @@ class Module
             $itemCount = count($eventsToDistribute);
             $sleepAfter = $itemCount === 0;
             foreach ($eventsToDistribute as $event) {
-                echo $event->id . PHP_EOL;
                 if ($this->checkFail('BroadcastEvent.'.$event->id)) {
                     $skipCount++;
                     continue;
@@ -301,6 +300,7 @@ class Module
 
     private function checkFail($id)
     {
+        return false;
         $key = __CLASS__ . __FUNCTION__ . $id;
         if (Cacher::get($key) === true) {
             return true;
