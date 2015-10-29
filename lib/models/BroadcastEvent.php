@@ -145,7 +145,7 @@ class BroadcastEvent extends \canis\db\ActiveRecord
         $eventTypeModel = BroadcastEventType::get($this->broadcast_event_type_id);
         $eventType = $broadcaster->getEventType($eventTypeModel->system_id);
         if (!$eventType) {
-            throw new \Exception("Unknown event type {$eventTypeModel->system_id)}");
+            throw new \Exception("Unknown event type {$eventTypeModel->system_id}");
             return false;
         }
         if ($eventType instanceof UserNotificationInterface) {
