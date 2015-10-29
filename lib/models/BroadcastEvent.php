@@ -229,7 +229,9 @@ class BroadcastEvent extends \canis\db\ActiveRecord
                     }
                 }
             }
-            throw new \Exception("Failed to handle " . $query->count());
+            if ($failed) {
+                throw new \Exception("Failed to handle " . $query->count());
+            }
             return !$failed;
         }
     }
