@@ -85,7 +85,7 @@ class Daemon extends DaemonBase
     	$process = new \React\ChildProcess\Process($this->getSubCommand($controller, [$headType, $headId]));
     	$process->on('exit', function($exitCode, $termSignal) use (&$_this, &$controller, $headType, $headId) {
             if ($exitCode !== 0) {
-    			Console::stderr(Console::ansiFormat("Broadcast head exited with error code {$exitCode}", [Console::FG_RED]));
+    			Console::stderr(Console::ansiFormat("Broadcast head {$headType}:{$headId} exited with error code {$exitCode}", [Console::FG_RED]));
                 sleep(10);
             }
             if (static::isPaused()) {
