@@ -263,6 +263,7 @@ class Module
             $itemCount = count($eventsToDistribute);
             $sleepAfter = $itemCount === 0;
             foreach ($eventsToDistribute as $event) {
+                echo $event->id . PHP_EOL;
                 if ($this->checkFail('BroadcastEvent.'.$event->id)) {
                     $skipCount++;
                     continue;
@@ -273,7 +274,6 @@ class Module
                 }
             }
             if ($skipCount === $limitPerTick ) {
-                throw new \Exception("Too many ticks");
                 Yii::$app->end(1);
             }
             call_user_func($tickCallback, $ticks);
