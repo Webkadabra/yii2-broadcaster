@@ -273,6 +273,7 @@ class Module
                 }
             }
             if ($skipCount === $limitPerTick ) {
+                throw new \Exception("Too many ticks");
                 Yii::$app->end(1);
             }
             call_user_func($tickCallback, $ticks);
