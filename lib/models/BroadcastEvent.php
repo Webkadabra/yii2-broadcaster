@@ -147,12 +147,14 @@ class BroadcastEvent extends \canis\db\ActiveRecord
         if (!$eventType) {
             return false;
         }
+        $failed = false;
         if ($eventType instanceof UserNotificationInterface) {
             if ($eventType->handle($this)) {
                 $this->handled = true;
-                return $this->save();
+                $failed = !$this->save();
+            } else {
+                $failed = true;
             }
-            return false;
         } else {
             $tableName = BroadcastSubscription::tableName();
             $query = BroadcastSubscription::find();
@@ -181,7 +183,6 @@ class BroadcastEvent extends \canis\db\ActiveRecord
             $query->params = $params;
             $query->where($where)->join('LEFT JOIN', BroadcastSubscriptionEventType::tableName() .' m', '{{m}}.[[broadcast_subscription_id]]={{'.$tableName.'}}.[[id]]');
 
-            $failed = false;
             foreach ($query->all() as $subscription) {
                 // created batch, if necessary
                 $batch = null;
@@ -212,11 +213,6 @@ class BroadcastEvent extends \canis\db\ActiveRecord
                     $failed = true;
                     continue;
                 }
-                $this->handled = true;
-                $saveResult = $this->save();
-                if (!$saveResult) {
-                    $failed = true;
-                }
                 if (empty($batch) && $this->priority === EventType::PRIORITY_CRITICAL) {
                     if ($caller !== null && $caller instanceof \canis\base\AskInterface) {
                         if (!$caller->ask(['handle', $deferredHandler])) {
@@ -228,10 +224,14 @@ class BroadcastEvent extends \canis\db\ActiveRecord
                     }
                 }
             }
-            if ($failed) {
-                throw new \Exception("Failed to handle " . $query->count());
-            }
-            return !$failed;
         }
+        if (!$failed) {
+            $this->handled = true;
+            $saveResult = $this->save();
+            if (!$saveResult) {
+                $failed = true;
+            }
+        }
+        return !$failed;
     }
 }

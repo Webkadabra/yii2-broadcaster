@@ -268,7 +268,6 @@ class Module
                     continue;
                 }
                 if(!$event->handle($this)) {
-                    throw new \Exception("Unable to handle {$event->id}");
                     $sleepAfter = true;
                 }
             }
@@ -300,7 +299,6 @@ class Module
 
     private function checkFail($id)
     {
-        return false;
         $key = __CLASS__ . __FUNCTION__ . $id;
         if (Cacher::get($key) === true) {
             return true;
