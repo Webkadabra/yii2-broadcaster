@@ -253,7 +253,7 @@ class Module
         return true;
     }
 
-    public function distributorHead($tickCallback, $limitPerTick = 10)
+    public function distributorHead($tickCallback, $limitPerTick = 40)
     {
         $ticks = 0;
         while(true) {
