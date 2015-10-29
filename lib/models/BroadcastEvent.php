@@ -152,7 +152,6 @@ class BroadcastEvent extends \canis\db\ActiveRecord
                 $this->handled = true;
                 return $this->save();
             }
-            throw new \Exception("Failed at notifying user");
             return false;
         } else {
             $tableName = BroadcastSubscription::tableName();

@@ -268,6 +268,7 @@ class Module
                     continue;
                 }
                 if(!$event->handle($this)) {
+                    throw new \Exception("Unable to handle {$event->id}");
                     $sleepAfter = true;
                 }
             }
