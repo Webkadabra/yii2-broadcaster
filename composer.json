@@ -12,8 +12,8 @@
 	],
 	"require": {
 		"yiisoft/yii2": "2.0.*",
-		"canis/yii2-canis-lib": "*",
-		"yiisoft/yii2-swiftmailer": "*",
+		"canis/yii2-canis-lib": "1.*",
+		"yiisoft/yii2-swiftmailer": "2.0.*",
 		"bower-asset/bootstrap-select": "1.7.*",
 		"guzzlehttp/guzzle": "6.1.*"
 	},
