@@ -248,13 +248,13 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
             }
         }
         if ($batchType === static::BATCH_TYPE_HOURLY) {
-            $scheduled = date('Y-m-d G:59:59');
+            $scheduled = gmdate("Y-m-d G:i:s", strtotime(date('Y-m-d G:59:59')));
         } elseif ($batchType === static::BATCH_TYPE_DAILY) {
-            $scheduled = date('Y-m-d') . " 23:59:59";
+            $scheduled = gmdate("Y-m-d G:i:s", strtotime(date('Y-m-d') . " 23:59:59"));
         } elseif ($batchType === static::BATCH_TYPE_WEEKLY) {
-            $scheduled = date('Y-m-d', strtotime('next ' . $endOfWeek)) . " 23:59:59";
+            $scheduled = gmdate("Y-m-d G:i:s", strtotime(date('Y-m-d', strtotime('next ' . $endOfWeek)) . " 23:59:59"));
         } elseif ($batchType === static::BATCH_TYPE_MONTHLY) {
-            $scheduled = date('Y-m-t 23:59:59');
+            $scheduled = gmdate("Y-m-d G:i:s", strtotime(date('Y-m-t 23:59:59')));
         }
 
         if (!isset($scheduled)) {
