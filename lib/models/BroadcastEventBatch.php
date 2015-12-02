@@ -139,7 +139,7 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
             return true;
         }
 
-        $this->started = date("Y-m-d G:i:s");
+        $this->started = gmdate("Y-m-d G:i:s");
         if (!$this->save()) {
             $this->fail("Unsable to start model");
             return false;
@@ -174,7 +174,7 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
                 if ($result) {
                     $deferredItem->complete();
                     $subscriptionModel = BroadcastSubscription::get($deferredItem->broadcast_subscription_id);
-                    $subscriptionModel->last_triggered = date("Y-m-d G:i:s");
+                    $subscriptionModel->last_triggered = gmdate("Y-m-d G:i:s");
                     $subscriptionModel->save();
                 } else {
                     $deferredItem->fail($this->resultObject->message);
@@ -187,9 +187,9 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
     public function complete($message = false)
     {
         if (empty($this->started)) {
-            $this->started = date('Y-m-d G:i:s');
+            $this->started = gmdate("Y-m-d G:i:s");
         }
-        $this->completed = date('Y-m-d G:i:s');
+        $this->completed = gmdate("Y-m-d G:i:s");
         if ($message) {
             $this->resultObject->message = $message;
         }
@@ -199,7 +199,7 @@ class BroadcastEventBatch extends \canis\db\ActiveRecord
     public function fail($error = false)
     {
         if (empty($this->started)) {
-            $this->started = date('Y-m-d G:i:s');
+            $this->started = gmdate("Y-m-d G:i:s");
         }
         $this->resultObject->isValid = false;
         if ($error) {

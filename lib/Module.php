@@ -176,7 +176,7 @@ class Module
     {
         $ticks = 0;
         $tableName = BroadcastEventDeferred::tableName();
-        $queryWhere = ['and', '{{'.$tableName.'}}.[[broadcast_event_batch_id]] IS NULL', '{{'.$tableName.'}}.[[started]] IS NULL', ['or', '{{'.$tableName.'}}.[[scheduled]] IS NULL', '{{'.$tableName.'}}.[[scheduled]] < NOW()']];
+        $queryWhere = ['and', '{{'.$tableName.'}}.[[broadcast_event_batch_id]] IS NULL', '{{'.$tableName.'}}.[[started]] IS NULL', ['or', '{{'.$tableName.'}}.[[scheduled]] IS NULL', '{{'.$tableName.'}}.[[scheduled]] < UTC_TIMESTAMP()']];
         $query = BroadcastEventDeferred::find()->orderBy(['{{e}}.[[priority]]' => SORT_DESC])->where($queryWhere)->limit($limitPerTick);
         $query->join('INNER JOIN', BroadcastEvent::tableName() . ' e', '{{e}}.[[id]]={{'.$tableName.'}}.[[broadcast_event_id]]');
         while(true) {
@@ -207,7 +207,7 @@ class Module
     {
         $ticks = 0;
         $tableName = BroadcastEventBatch::tableName();
-        $queryWhere = ['and', '{{'.$tableName.'}}.[[started]] IS NULL', ['or', '{{'.$tableName.'}}.[[scheduled]] IS NULL', '{{'.$tableName.'}}.[[scheduled]] < NOW()']];
+        $queryWhere = ['and', '{{'.$tableName.'}}.[[started]] IS NULL', ['or', '{{'.$tableName.'}}.[[scheduled]] IS NULL', '{{'.$tableName.'}}.[[scheduled]] < UTC_TIMESTAMP()']];
         $query = BroadcastEventBatch::find()->where($queryWhere)->limit($limitPerTick);
         while(true) {
             $ticks++;

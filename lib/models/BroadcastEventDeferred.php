@@ -141,7 +141,7 @@ class BroadcastEventDeferred extends \canis\db\ActiveRecord
             return true;
         }
 
-        $this->started = date("Y-m-d G:i:s");
+        $this->started = gmdate("Y-m-d G:i:s");
         if (!$this->save()) {
             return false;
         }
@@ -150,7 +150,7 @@ class BroadcastEventDeferred extends \canis\db\ActiveRecord
             $this->fail("Item could not be handled: " . $handler->lastError);
             return false;
         }
-        $subscriptionModel->last_triggered = date("Y-m-d G:i:s");
+        $subscriptionModel->last_triggered = gmdate("Y-m-d G:i:s");
         $subscriptionModel->save();
         return $this->complete();
     }
@@ -158,9 +158,9 @@ class BroadcastEventDeferred extends \canis\db\ActiveRecord
     public function complete($message = false)
     {
         if (empty($this->started)) {
-            $this->started = date('Y-m-d G:i:s');
+            $this->started = gmdate("Y-m-d G:i:s");
         }
-        $this->completed = date('Y-m-d G:i:s');
+        $this->completed = gmdate("Y-m-d G:i:s");
         if ($message) {
             $this->resultObject->message = $message;
         }
@@ -170,7 +170,7 @@ class BroadcastEventDeferred extends \canis\db\ActiveRecord
     public function fail($error = false)
     {
         if (empty($this->started)) {
-            $this->started = date('Y-m-d G:i:s');
+            $this->started = gmdate("Y-m-d G:i:s");
         }
         $this->resultObject->isValid = false;
         if ($error) {
