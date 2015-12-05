@@ -220,7 +220,8 @@ class BroadcastEvent extends \canis\db\ActiveRecord
                         }
                     }
                     if (!$deferredHandler->handle()) {
-                        $failed = true;
+                        // it is still recorded and will be tried later on
+                    //    $failed = true;
                     }
                 }
             }

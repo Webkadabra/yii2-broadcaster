@@ -169,9 +169,9 @@ class BroadcastEventDeferred extends \canis\db\ActiveRecord
 
     public function fail($error = false)
     {
-        if (empty($this->started)) {
-            $this->started = gmdate("Y-m-d G:i:s");
-        }
+        
+        $this->started = NULL;
+        $this->scheduled = gmdate("Y-m-d G:i:s", strtotime("+10 minutes"));
         $this->resultObject->isValid = false;
         if ($error) {
             $this->resultObject->message = $error;
