@@ -42,17 +42,18 @@ class Module
                 $this->friendlyUrl . '/<controller:[\w\-]+>' => $this->id . '/<controller>/index',
                 $this->friendlyUrl . '/<controller:[\w\-]+>/<action:[\w\-]+>' => $this->id . '/<controller>/<action>',
             ], false);
-        }
-        $controllers = [
-            'email' => controllers\EmailController::className(),
-            'webhook' => controllers\WebhookController::className()
-        ];
-        if (isset(Yii::$app->params['broadcastControllers'])) {
-            $controllers = array_merge($controllers, Yii::$app->params['broadcastControllers']);
-        }
-        foreach ($controllers as $id => $controller) {
-            if (!$controller) { continue; }
-            $this->controllerMap[$id] = $controller;
+            
+            $controllers = [
+                'email' => controllers\EmailController::className(),
+                'webhook' => controllers\WebhookController::className()
+            ];
+            if (isset(Yii::$app->params['broadcastControllers'])) {
+                $controllers = array_merge($controllers, Yii::$app->params['broadcastControllers']);
+            }
+            foreach ($controllers as $id => $controller) {
+                if (!$controller) { continue; }
+                $this->controllerMap[$id] = $controller;
+            }
         }
         $app->on(Application::EVENT_BEFORE_REQUEST, [$this, 'beforeRequest']);
         $app->on(Application::EVENT_BEFORE_ACTION, [$this, 'beforeAction']);
